@@ -1,6 +1,5 @@
 
 
-
 //Create a namespace
 var widgetutils = {};
 
@@ -27,7 +26,7 @@ widgetutils.parseparams = function (paramArray = {"server":"http://op-en.se:5000
 	return paramArray;
 }
 
-widgetutils.getdatahub = function (name = "datahub",resource_path = ".",callback = init_widget) {
+widgetutils.getdatahub = function (name = "datahub",resource_path = widgetutils.path,callback = init_widget) {
 
 	//Find top most window. 
 	var topmost = window; 
@@ -98,12 +97,18 @@ widgetutils.loadjsfile = function (filename, callback = function () {} ) {
     }
 }
 
+
 widgetutils.init = function () {
 
 	widgetutils.paramArray = widgetutils.parseparams();
 	widgetutils.datahub = widgetutils.getdatahub();
 
 }
+
+
+widgetutils.scripts = document.getElementsByTagName("script");
+widgetutils.path = widgetutils.scripts[widgetutils.scripts.length-1].src.replace("/widgetutils.js","");
+console.log(widgetutils.path);
 
 
 
