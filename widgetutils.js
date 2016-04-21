@@ -39,7 +39,7 @@ widgetutils.getdatahub = function (name = "datahub",resource_path = widgetutils.
 	if (!topmost.parent.hasOwnProperty(name)) {
 
 		//Dynabically load libraries. 
-		widgetutils.loadjsfile(resource_path + "/socket.io-1.0.0.js",function () { 
+		widgetutils.loadjsfile("https://cdn.socket.io/socket.io-1.4.5.js",function () { 
 			console.log("socket.io loaded")
 
 			widgetutils.loadjsfile(resource_path + "/animera.js", function () { 
