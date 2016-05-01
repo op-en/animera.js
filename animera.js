@@ -254,6 +254,8 @@ AppClient.prototype.bind_topic_to_style = function (element ,topic, style, subpr
 };
 
 
+
+
 //New version
 AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative = true, subproperty = null, input_range = null, output_range = null, clamp = false) {
 
@@ -396,7 +398,8 @@ Rotation.prototype.update = function (delta_time) {
   var change;
 
   if (this.relative == false) {
-    change = this.update_direction(delta_time);
+    return;
+    //change = this.update_direction(delta_time);
   } 
   else {
     change = this.update_rotation(delta_time);
@@ -460,7 +463,7 @@ Rotation.prototype.mqtt = function (topic,payload) {
 
   }
 
-  //TODO implement subproperty
+  
   
 
   //Clamp data:
@@ -497,9 +500,14 @@ Rotation.prototype.mqtt = function (topic,payload) {
     if (newdata != this.target_value) {
       this.target_value = newdata;
       this.finnished = false;
+
+      this.position = this.target_value;
+      this.setvalue();
     }
      
   }
+
+
 
 };
 
