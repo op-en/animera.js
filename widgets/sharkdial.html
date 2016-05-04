@@ -32,11 +32,12 @@
  </div>   
 
  <style>
+
 #main {
-  -webkit-app-region: drag;
-  width: 100vmin;
-    height: 100vmin;
-    overflow: hidden;
+
+  width: 100%;
+  height: 100%;
+   
 }
 
 .circle {
@@ -82,10 +83,9 @@
 }
 
 #container {
-     width: 80vmin;
-     height: 80vmin;
-     top:0vmin;
-     position:absolute;
+     width: 100%;
+     height: 100%;
+     position:relative;
      
       
 }
@@ -172,6 +172,8 @@
   function resize() {
     document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
     document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+    document.getElementById("container").style.height = document.getElementById("container").clientHeight + "px"; 
+
     console.log("text_resize");
 
       $("#value").css("font-size",$("#value").height());

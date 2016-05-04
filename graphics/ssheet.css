@@ -1,0 +1,153 @@
+/*
+---------------------------------
+---- Open Energy Playground -----
+---------------------------------
+-------- Marius Johansen --------
+---------------------------------
+*/
+
+/* Element/Div styles ---------------------------------------*/
+
+html, body {
+    height:  100%;
+    width:   100%;
+	font-family: open-sans, arial;
+ 	font-weight: 300;
+	font-size: 10px;
+    color: rgba(40,40,40,1);
+    text-shadow:none;
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;	
+	}
+
+#mainDiv {
+    height:100%;
+    width:100%;
+    margin:0px;
+    padding:15px;
+    box-sizing: border-box;	
+}
+
+
+
+/* Text styles ---------------------------------------*/
+
+.floatLeft {
+    float:left;
+}
+
+
+.elemWrapper {
+    transition: box-shadow 0.25s ease-out;
+    border: 0px dotted rgba(90,90,90,1);
+    background-color: rgba(240,240,240,1);
+    box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.5);
+    border-radius: 10px;
+    background-color: rgba(255,255,255,1);
+    cursor:pointer;
+    text-align:center;
+    color: rgba(80,80,80,1);
+    font-family: Open Sans, arial;
+    font-weight:600;
+    font-size:11px;
+    letter-spacing: 0px;
+    padding: 5px;
+    margin: 10px;
+    height:145px;
+    float:left;
+    position:relative;
+    box-sizing: border-box;
+}
+
+.elemWrapper:hover {
+    box-shadow: 0px 0px 4px 4px rgba(0,0,0,0.5);
+}
+
+.elemClassWrapper {
+    border: 0px dotted rgba(80,80,80,1);
+    background-color: rgba(80,80,80,1);
+    margin-bottom:15px;
+    padding: 0px;
+	display: -webkit-flex;
+    display: flex;
+}
+
+.elemClassBtn {
+    transition: background-color 0.25s ease-out;
+    border-left: 1px solid rgba(150,150,150,1);
+    background-color: rgba(54,54,54,1);-left
+    border-radius: 0px;
+    cursor:pointer;
+    text-align:center;
+    vertical-align: bottom;
+    color: rgba(243,243,243,1);
+    font-family: Open Sans, arial;
+    font-weight:bold;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding:10px;
+    min-width:100px;
+    margin:0px;
+    box-sizing: border-box;
+    flex:1;
+}
+
+.elemClassBtn:hover {
+    background-color: rgba(100,100,100,1);
+}
+
+.elemFormatBtn {
+    transition: box-shadow 0.25s ease-out;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
+    height: 30px;
+    width: 30px;
+    padding:0px;
+    margin-top:5px;
+    box-sizing: border-box;
+    float:left;
+}
+
+
+.elemFormatBtn:hover {
+    box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.5);
+}
+
+
+.elemFormatBtn:click {
+    box-shadow: 0px 0px 2px 2px rgba(0,0,0,0.5);
+}
+
+
+
+
+
+
+/* Link styles ---------------------------------------*/
+
+a:link {
+    color: rgba(50,50,50,1);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+a:visited {
+    color: rgba(50,50,50,1);
+    text-decoration: none;
+}
+
+a:hover {
+    color: rgba(50,50,50,1);
+    text-decoration: none;
+}
+
+a:active {
+    color: rgba(50,50,50,1);
+    text-decoration: none;
+    font-weight: 600;
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 80 80" style="enable-background:new 0 0 80 80;" xml:space="preserve">
+<style type="text/css">
+	.st0{stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:#FFFFFF;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+	.st3{fill:none;}
+	.st4{fill:#999999;}
+	.st5{font-family:'Klavika-Light';}
+	.st6{font-size:18;}
+	.st7{fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;}
+	.st8{stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st9{stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st10{display:none;}
+</style>
+<g id="_x2D_Background2">
+</g>
+<g id="Gfx1">
+	<path d="M25.1,31.4v29.7c0,3.5,2.9,6.4,6.4,6.4h17.1c3.5,0,6.4-2.9,6.4-6.4V31.4H25.1z"/>
+	<path d="M54.9,29.7V18.9c0-3.5-2.9-6.4-6.4-6.4H31.5c-3.5,0-6.4,2.9-6.4,6.4v10.8H54.9z"/>
+</g>
+<g id="GfxWhite">
+	<g>
+		<g>
+			<rect x="39.7" y="43.5" class="st1" width="0.6" height="14.5"/>
+			<path class="st1" d="M40,46.4c0,0-0.1,0-0.1,0L37.2,45l0.3-0.5l2.5,1.3l2.5-1.3l0.3,0.5l-2.6,1.4C40.1,46.4,40,46.4,40,46.4z"/>
+			<path class="st1" d="M37.5,57l-0.3-0.5l2.6-1.4c0.1,0,0.2,0,0.3,0l2.6,1.4L42.5,57L40,55.7L37.5,57z"/>
+		</g>
+		<g>
+			<rect x="32.8" y="50.5" transform="matrix(0.866 0.5 -0.5 0.866 30.7354 -13.2007)" class="st1" width="14.5" height="0.6"/>
+			<path class="st1" d="M44.2,56l-0.6,0l0.1-3c0-0.1,0.1-0.2,0.1-0.2l2.5-1.6l0.3,0.5l-2.4,1.5L44.2,56z"/>
+			<path class="st1" d="M33.6,50.3l-0.3-0.5l2.4-1.5l0.1-2.8l0.6,0l-0.1,3c0,0.1-0.1,0.2-0.1,0.2L33.6,50.3z"/>
+		</g>
+		<g>
+			
+				<rect x="39.7" y="43.5" transform="matrix(0.5005 0.8657 -0.8657 0.5005 63.916 -9.2796)" class="st1" width="0.6" height="14.5"/>
+			<path class="st1" d="M35.8,56l-0.1-2.8l-2.4-1.5l0.3-0.5l2.5,1.6c0.1,0,0.1,0.1,0.1,0.2l0.1,3L35.8,56z"/>
+			<path class="st1" d="M46.4,50.3l-2.5-1.6c-0.1,0-0.1-0.1-0.1-0.2l-0.1-3l0.6,0l0.1,2.8l2.4,1.5L46.4,50.3z"/>
+		</g>
+	</g>
+	<path class="st1" d="M51.3,26.3h-7.1c-0.4,0-0.7-0.3-0.7-0.7c0-0.4,0.3-0.7,0.7-0.7h7.1c0.4,0,0.7,0.3,0.7,0.7
+		C52,26,51.7,26.3,51.3,26.3z"/>
+	<path class="st1" d="M51.3,36.1h-7.1c-0.4,0-0.7-0.3-0.7-0.7c0-0.4,0.3-0.7,0.7-0.7h7.1c0.4,0,0.7,0.3,0.7,0.7
+		C52,35.8,51.7,36.1,51.3,36.1z"/>
+</g>
+<g id="_x2D_GuideText">
+	<rect x="-38.5" y="80.5" class="st3" width="157" height="36.5"/>
+	<text transform="matrix(1 0 0 1 16.9966 114.5693)" class="st4 st5 st6">Fridge</text>
+</g>
+<g id="_x2D_GuideLines" class="st10">
+</g>
+<g id="nyt_x5F_exporter_x5F_info" class="st10">
+</g>
+</svg>
