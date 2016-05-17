@@ -68,7 +68,7 @@ widgetutils.getdatahub = function (name,resource_path,callback) {
 
 
 
-widgetutils.loadjsfile = function (filename, callback = function () {} ) {
+widgetutils.loadjsfile = function (filename, callback ) {
 
 	//Default parameter that works in safari as well 
 	if (typeof(callback)==='undefined') callback = function () {};

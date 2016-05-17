@@ -157,7 +157,9 @@ AppClient.prototype.subscribe = function (topic, handler) {
     
 };
 
-AppClient.prototype.subscribe_to_subproperty = function (topic,  subproperty = null, handler) {
+AppClient.prototype.subscribe_to_subproperty = function (topic,  subproperty, handler) {
+
+  if (typeof(subproperty)==='undefined') subproperty = null;
 
   this.subscribe(topic,function(topic,payload){
     if (subproperty != null) {
@@ -190,7 +192,10 @@ AppClient.prototype.subscribe_to_subproperty = function (topic,  subproperty = n
 //Topic is the mqtt topic
 //element is the id of an html element. 
 //If mqtt data is Json the optional subproperty can be used to get a specific property of the data. 
-AppClient.prototype.bind_topic_to_html = function (element ,topic,  subproperty = null, unit = "") {
+AppClient.prototype.bind_topic_to_html = function (element ,topic,  subproperty, unit) {
+
+  if (typeof(subproperty)==='undefined') subproperty = null;
+  if (typeof(unit)==='undefined') unit = "";
 
   if (typeof element === 'string' || element instanceof String) 
     element = document.getElementById(element);
@@ -223,7 +228,9 @@ AppClient.prototype.bind_topic_to_html = function (element ,topic,  subproperty 
 };
 
 
-AppClient.prototype.bind_topic_to_style = function (element ,topic, style, subproperty = null) {
+AppClient.prototype.bind_topic_to_style = function (element ,topic, style, subproperty) {
+
+  if (typeof(subproperty)==='undefined') subproperty = null;
 
   if (typeof element === 'string' || element instanceof String) 
     element = document.getElementById(element);
@@ -257,7 +264,15 @@ AppClient.prototype.bind_topic_to_style = function (element ,topic, style, subpr
 
 
 //New version
-AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative = true, subproperty = null, input_range = null, output_range = null, clamp = false) {
+AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative, subproperty, input_range, output_range, clamp) {
+
+  if (typeof(relative)==='undefined') relative = true;
+  if (typeof(subproperty)==='undefined') subproperty = null;
+
+  if (typeof(input_range)==='undefined') input_range = null;
+  if (typeof(output_range)==='undefined') output_range = null;
+  if (typeof(clamp)==='undefined') clamp = false;
+
 
   //Creation animantion object. 
   var rotation = new Rotation(element,relative,subproperty);
@@ -285,7 +300,11 @@ AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative 
 
 };
 
-AppClient.prototype.autobind = function (mydoc = document,class_name = null) {
+AppClient.prototype.autobind = function (mydoc,class_name) {
+
+  if (typeof(mydoc)==='undefined') mydoc = document;
+
+  if (typeof(class_name)==='undefined') class_name = null;
   
   //Use a specific class name or just look for mqtt atrribute. 
   if (class_name == null) {
@@ -356,7 +375,10 @@ AppClient.prototype.autobind_after_page_load = function (mydoc,class_name) {
 }
 
 
-var Rotation = function (id,relative = true,subproperty = null) {
+var Rotation = function (id,relative,subproperty) {
+
+  if (typeof(relative)==='undefined') relative = true;
+  if (typeof(subproperty)==='undefined') subproperty = null;
 
   if (typeof id === 'string' || id instanceof String) {
     this.id = id;
