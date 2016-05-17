@@ -4,7 +4,10 @@
 var widgetutils = {};
 
 
-widgetutils.parseparams = function (paramArray = {"server":"http://op-en.se:5000","topic":"test/topic1","subproperty":null,"max":10000}) {
+widgetutils.parseparams = function (paramArray) {
+
+	//Default parameter that works in safari as well 
+	if (typeof(paramArray)==='undefined') paramArray = {"server":"http://op-en.se:5000","topic":"test/topic1","subproperty":null,"max":10000};
 
 	var href = document.defaultView.location.href;
 
@@ -26,7 +29,13 @@ widgetutils.parseparams = function (paramArray = {"server":"http://op-en.se:5000
 	return paramArray;
 }
 
-widgetutils.getdatahub = function (name = "datahub",resource_path = widgetutils.path,callback = init_widget) {
+widgetutils.getdatahub = function (name,resource_path,callback) {
+
+	//Default parameter that works in safari as well 
+	if (typeof(name)==='undefined') name = "datahub";
+	if (typeof(resource_path)==='undefined') resource_path = widgetutils.path;
+	if (typeof(callback)==='undefined') callback = init_widget;
+
 
 	//Find top most window. 
 	var topmost = window; 
@@ -60,6 +69,9 @@ widgetutils.getdatahub = function (name = "datahub",resource_path = widgetutils.
 
 
 widgetutils.loadjsfile = function (filename, callback = function () {} ) {
+
+	//Default parameter that works in safari as well 
+	if (typeof(callback)==='undefined') callback = function () {};
 	
 	var script = document.createElement('script');
 
