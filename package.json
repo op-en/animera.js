@@ -1,0 +1,27 @@
+{
+  "name": "animera.js",
+  "version": "1.0.0",
+  "description": "This is a javascript framework for visualising realtime data from MQTT via an socket.io bridge.",
+  "main": "animera.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/op-en/animera.js.git"
+  },
+  "keywords": [
+    "animate",
+    "svg",
+    "html"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/op-en/animera.js/issues"
+  },
+  "homepage": "https://github.com/op-en/animera.js#readme"
+}
