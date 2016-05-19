@@ -1,16 +1,16 @@
 // Create a namespace
-var widgetutils = {}
+var widgetutils = module.exports = {}
 
 widgetutils.parseparams = function (paramArray) {
-  // Default parameter that works in safari as well
-  if (typeof (paramArray) === 'undefined') paramArray = {'server': 'http://op-en.se:5000','topic': 'test/topic1','subproperty': null,'max': 10000}
+
+  paramArray = paramArray || {'server': 'http://op-en.se:5000', 'topic': 'test/topic1', 'subproperty': null, 'max': 10000}
 
   var href = document.defaultView.location.href
 
   // Get the url of myself and parse it for parameters.
-  if (-1 != href.indexOf('?')) {
+  if (href.indexOf('?') !== -1) {
     var paramList = href.split('?')[1].split(/&|;/)
-    for ( var p = 0, pLen = paramList.length; pLen > p; p++) {
+    for (var p = 0, pLen = paramList.length; pLen > p; p++) {
       var eachParam = paramList[ p ]
       var valList = eachParam.split('=')
       var name = unescape(valList[0])
@@ -67,7 +67,7 @@ widgetutils.loadjsfile = function (filename, callback) {
   script.onload = callback
   // IE 6 & 7
   script.onreadystatechange = function () {
-    if (this.readyState == 'complete') {
+    if (this.readyState === 'complete') {
       callback()
     }
   }

@@ -2,7 +2,7 @@
   "name": "animera.js",
   "version": "1.0.0",
   "description": "This is a javascript framework for visualising realtime data from MQTT via an socket.io bridge.",
-  "main": "animera.js",
+  "main": "dist/animera.js",
   "directories": {
     "example": "examples"
   },
@@ -23,5 +23,19 @@
   "bugs": {
     "url": "https://github.com/op-en/animera.js/issues"
   },
-  "homepage": "https://github.com/op-en/animera.js#readme"
+  "homepage": "https://github.com/op-en/animera.js#readme",
+  "devDependencies": {
+    "babel-core": "^6.9.0",
+    "babel-loader": "^6.2.4",
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-size": "^2.1.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7",
+    "strip-loader": "^0.1.2",
+    "webpack-stream": "^3.2.0"
+  },
+  "dependencies": {
+    "socket.io-client": "^1.4.6"
+  }
 }

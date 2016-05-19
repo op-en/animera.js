@@ -1,6 +1,10 @@
 // visa.js
 // This code was created by the open energy playground project 2016.
 
+window.widgetutils = require('./widgetutils')
+
+var io = require('socket.io-client')
+
 // OpenEnergy Appserver
 var AppClient = function (url) {
   this.io = io.connect(url)
