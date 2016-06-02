@@ -5,7 +5,7 @@ var del = require('del')
 var uglify = require('gulp-uglify')
 var inject = require('gulp-inject')
 var webpack = require('webpack-stream')
-var htmlmin = require('gulp-htmlmin')
+// var htmlmin = require('gulp-htmlmin')
 var named = require('vinyl-named')
 var pump = require('pump')
 // set variable via $ gulp --type production
@@ -38,7 +38,7 @@ gulp.task('widgets', ['build'], function () {
         return '<script>' + file.contents.toString('utf8') + '</script>'
       }
     }))
-    .pipe(isProduction ? htmlmin({collapseWhitespace: true}) : util.noop())
+    // .pipe(isProduction ? htmlmin({collapseWhitespace: true}) : util.noop())
     .pipe(gulp.dest(widget))
 })
 
