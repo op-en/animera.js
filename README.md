@@ -19,5 +19,4 @@ gulp --type production
 
 ## TODO
 
-- package widgetutils separately, and include in every widget
 - test framework with mocha and phantom.js
