@@ -1,12 +1,13 @@
 var gulp = require('gulp')
 var util = require('gulp-util')
 var size = require('gulp-size')
-var uglify = require('gulp-uglify')
 var del = require('del')
+var uglify = require('gulp-uglify')
 var inject = require('gulp-inject')
 var webpack = require('webpack-stream')
 var htmlmin = require('gulp-htmlmin')
 var named = require('vinyl-named')
+var pump = require('pump')
 // set variable via $ gulp --type production
 var environment = util.env.type || 'development'
 var isProduction = environment === 'production'
@@ -15,13 +16,17 @@ var webpackConfig = require('./webpack.config.js').getConfig(environment)
 var dist = 'dist/'
 var widget = dist + 'widgets/'
 
-gulp.task('scripts', function () {
-  return gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils])
-    .pipe(named())
-    .pipe(webpack(webpackConfig))
-    .pipe(isProduction ? uglify() : util.noop())
-    .pipe(gulp.dest(dist))
-    .pipe(size({ title: 'js' }))
+gulp.task('scripts', function (cb) {
+  pump([
+    gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
+    named(),
+    webpack(webpackConfig),
+    isProduction ? uglify() : util.noop(),
+    gulp.dest(dist),
+    size({ title: 'js' })
+  ],
+    cb
+  )
 })
 
 gulp.task('widgets', ['build'], function () {
