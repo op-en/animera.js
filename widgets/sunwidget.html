@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="../dist/animera.js" type="text/javascript"></script>
+  <!-- inject:widgetutils:js -->
+  <!-- endinject -->
   <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
 </head>
 <body onresize="resize()">
@@ -30,22 +31,16 @@ if (window == window.parent) {
   document.getElementById("outer").style.width = "40%";
   document.getElementById("outer").style["padding-left"] = "30%";
   //document.getElementById("outer").style.height = "100vh";
-
 }
 
 function resize() {
   document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
   document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
-  console.log("text_resize");
-
 }
-
 resize();
 
-function init_widget(datahub) {
-
+widgetutils.init().then(function (datahub) {
   console.log(widgetutils.paramArray);
-
   var server = widgetutils.paramArray["server"];
   var topic = widgetutils.paramArray["topic"];
   var subproperty = widgetutils.paramArray["subproperty"];
@@ -56,10 +51,7 @@ function init_widget(datahub) {
   //Bind text and animation to data.
   appserver.bind_topic_to_html(document.getElementById("value"),topic,subproperty," W");
   appserver.bind_topic_to_rotation(document.getElementById("sun"), topic,true,subproperty,[0,max],[0,0.12],true);
-
-}
-console.log(widgetutils)
-widgetutils.init();
+})
 </script>
 <style>
   .text {

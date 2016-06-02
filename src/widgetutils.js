@@ -2,7 +2,6 @@
 var widgetutils = module.exports = {}
 
 widgetutils.parseparams = function (paramArray) {
-
   paramArray = paramArray || {'server': 'http://op-en.se:5000', 'topic': 'test/topic1', 'subproperty': null, 'max': 10000}
 
   var href = document.defaultView.location.href
@@ -23,36 +22,30 @@ widgetutils.parseparams = function (paramArray) {
   return paramArray
 }
 
-widgetutils.getdatahub = function (name, resource_path, callback) {
-  // Default parameter that works in safari as well
-  if (typeof (name) === 'undefined') name = 'datahub'
-  if (typeof (resource_path) === 'undefined') resource_path = widgetutils.path
-  if (typeof (callback) === 'undefined') callback = init_widget
+widgetutils.getdatahub = function (name, resource_path) {
+  name = name || 'datahub'
+  // resource_path = resource_path || 'http://op-en.github.io/animera.js/dist/animera-1.0.0.js'
+  resource_path = resource_path || '../animera.js'
 
   // Find top most window.
   var topmost = window
-
-  while (topmost != topmost.parent) {
+  while (topmost !== topmost.parent) {
     topmost = topmost.parent
   }
 
-  // Check if we have a data library.
-  if (!topmost.parent.hasOwnProperty(name)) {
-    // Dynabically load libraries.
-    widgetutils.loadjsfile('https://cdn.socket.io/socket.io-1.4.5.js', function () {
-      console.log('socket.io loaded')
-
-      widgetutils.loadjsfile(resource_path + '/animera.js', function () {
-        console.log('datahub loaded')
-        callback(topmost[name])
+  return new Promise((resolve, reject) => {
+    // Check if we have a data library.
+    if (!topmost.parent.hasOwnProperty(name)) {
+      // Dynabically load libraries.
+      widgetutils.loadjsfile(resource_path, function () {
+        // console.log('datahub loaded')
+        resolve(topmost[name])
       })
-    })
-
-    return
-  }
-
-  // Call callback
-  callback(topmost[name])
+      return
+    } else {
+      resolve(topmost[name])
+    }
+  })
 }
 
 widgetutils.loadjsfile = function (filename, callback) {
@@ -81,7 +74,7 @@ widgetutils.loadjsfile = function (filename, callback) {
       script.type = 'text/javascript'
       script.src = filename
     } else {
-      var dest = document.getElementsByTagName('svg')[0]
+      dest = document.getElementsByTagName('svg')[0]
       script['xlink:href'] = filename
       script['xlink:actuate'] = 'onload'
     }
@@ -89,16 +82,18 @@ widgetutils.loadjsfile = function (filename, callback) {
     // console.log(dest)
     // console.log(script)
     // console.log(dest)
-
     dest.appendChild(script)
   }
 }
 
 widgetutils.init = function () {
   widgetutils.paramArray = widgetutils.parseparams()
-  widgetutils.datahub = widgetutils.getdatahub()
+  // Returns a promise
+  return widgetutils.getdatahub()
 }
 
 widgetutils.scripts = document.getElementsByTagName('script')
-widgetutils.path = widgetutils.scripts[widgetutils.scripts.length - 1].src.replace('/widgetutils.js', '')
-console.log(widgetutils.path)
+// widgetutils.path = widgetutils.scripts[widgetutils.scripts.length - 1].src.replace('/widgetutils.js', '')
+// console.log(widgetutils.path)
+
+window.widgetutils = widgetutils
