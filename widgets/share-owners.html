@@ -1,15 +1,12 @@
 <!DOCTYPE html>
   <html>
   <head>
-
-  <script src="../widgetutils.js" type="text/javascript"></script>
+    <!-- inject:widgetutils:js -->
+    <!-- endinject -->
   <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
-
   </head>
-  <body onresize="resize()"> 
-
+  <body onresize="resize()">
 <div id="outer" >
-
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
 
@@ -80,106 +77,77 @@
 
 </svg>
 
-<div id="value2" class="text" onresize="resize()">?</div>   
+<div id="value2" class="text" onresize="resize()">?</div>
 
 </div>
 
- <script> 
-
-  //If running stand alone. 
+ <script>
+  //If running stand alone.
   if (window == window.parent) {
       document.getElementById("outer").style.width = "40%";
       document.getElementById("outer").style["padding-left"] = "30%";
       document.getElementById("outer").style["padding-top"] = "10%";
-
   }
-
   function resize() {
     document.getElementById("value2").style.fontSize = document.getElementById("value2").offsetWidth / 6 + "pt";
     document.getElementById("outer").style.height = document.getElementById("outer").offsetWidth + "px";
-    console.log("text_resize");
-
   }
 
   resize();
-
   function setnumber(n=9) {
-
   	var items;
-
   	for (i=1;i<11;i++) {
   		items = document.getElementsByClassName("c" +i);
-
   		for (var j = 0;j < items.length;j++) {
   			if (i < n+1)
 	  			items[j].setAttribute("fill","#00000");
 	  		else
 	  			items[j].setAttribute("fill","#BBBBBB");
   		}
-
   	}
-
   }
 
   setnumber();
+  widgetutils.init().then(function (datahub) {
+        console.log(widgetutils.paramArray);
+        var server = widgetutils.paramArray["server"];
+        var topic = widgetutils.paramArray["topic"];
+        var subproperty = widgetutils.paramArray["subproperty"];
+        var max = widgetutils.paramArray["max"];
+        var appserver = datahub.getdatasource("op-en_appserver",server);
 
-  function init_widget(datahub) {
+        //Bind text and animation to data.
+        appserver.bind_topic_to_html(document.getElementById("value2"),topic,subproperty,"");
+        //appserver.bind_topic_to_rotation("sun", topic,true,subproperty,[0,max],[0,0.12],true);
 
-    console.log(widgetutils.paramArray);
-
-    var server = widgetutils.paramArray["server"];
-    var topic = widgetutils.paramArray["topic"];
-    var subproperty = widgetutils.paramArray["subproperty"];
-    var max = widgetutils.paramArray["max"];
-
-    var appserver = datahub.getdatasource("op-en_appserver",server);
-  
-
-
-    //Bind text and animation to data. 
-    appserver.bind_topic_to_html(document.getElementById("value2"),topic,subproperty,"");
-    //appserver.bind_topic_to_rotation("sun", topic,true,subproperty,[0,max],[0,0.12],true);
-
-    appserver.subscribe_to_subproperty(topic,subproperty,function (topic,data) {
-    //appserver.subscribe(topic,function (topic,data) {
-
-    	setnumber(parseInt(data));
-
-    });
-
-
-  }
-
-  widgetutils.init();
-
-
-
+        appserver.subscribe_to_subproperty(topic,subproperty,function (topic,data) {
+        //appserver.subscribe(topic,function (topic,data) {
+        	setnumber(parseInt(data));
+        });
+  })
 </script>
-
-  
-
   <style>
 
   .text {
   background-color: none;
-  font-size: 18pt; 
+  font-size: 18pt;
   font-family: 'Palanquin Dark', sans-serif;
-  position: relative; 
-  left: 0%; 
-  top: -43%; 
-  width: 100%; 
-  height: 40%; 
+  position: relative;
+  left: 0%;
+  top: -43%;
+  width: 100%;
+  height: 40%;
   text-align: center;
   z-index:10;
   }
 
   .test {
-  background-color: none;  
+  background-color: none;
   border: 3px solid blue;
   border-color: black;
   }
 
-  
+
 
   </style>
 
