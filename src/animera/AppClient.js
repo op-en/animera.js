@@ -100,8 +100,8 @@ var AppClient = module.exports = function (url) {
 
 // Add a function that handles incomming MQTT data
 AppClient.prototype.subscribe = function (topic, handler) {
-  var d = new Date()
-  var n = d.getTime()
+  // var d = new Date()
+  // var n = d.getTime()
 
   this.lock++
 
@@ -213,26 +213,26 @@ AppClient.prototype.bind_topic_to_style = function (element, topic, style, subpr
 }
 
 // New version
-AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative, subproperty, input_range, output_range, clamp) {
+AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative, subproperty, inputRange, outputRange, clamp) {
   if (typeof (relative) === 'undefined') relative = true
   if (typeof (subproperty) === 'undefined') subproperty = null
 
-  if (typeof (input_range) === 'undefined') input_range = null
-  if (typeof (output_range) === 'undefined') output_range = null
+  if (typeof (inputRange) === 'undefined') inputRange = null
+  if (typeof (outputRange) === 'undefined') outputRange = null
   if (typeof (clamp) === 'undefined') clamp = false
 
   // Creation animantion object.
   var rotation = new Rotation(element, relative, subproperty)
 
-  if (input_range != null && output_range != null) {
-    rotation.input_m = (output_range[1] - output_range[0]) / (input_range[1] - input_range[0])
-    rotation.input_c = output_range[0] - (rotation.input_m * input_range[0])
+  if (inputRange != null && outputRange != null) {
+    rotation.input_m = (outputRange[1] - outputRange[0]) / (inputRange[1] - inputRange[0])
+    rotation.input_c = outputRange[0] - (rotation.input_m * inputRange[0])
   }
 
-  if (clamp === true && input_range != null) {
-    input_range.sort()
-    rotation.input_max = input_range[1]
-    rotation.input_min = input_range[0]
+  if (clamp === true && inputRange != null) {
+    inputRange.sort()
+    rotation.input_max = inputRange[1]
+    rotation.input_min = inputRange[0]
   }
 
   this.rotations.push(rotation)
@@ -243,17 +243,17 @@ AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative,
   return rotation
 }
 
-AppClient.prototype.autobind = function (mydoc, class_name) {
+AppClient.prototype.autobind = function (mydoc, className) {
   if (typeof (mydoc) === 'undefined') mydoc = document
 
-  if (typeof (class_name) === 'undefined') class_name = null
+  if (typeof (className) === 'undefined') className = null
 
   // Use a specific class name or just look for mqtt atrribute.
   var list
-  if (class_name == null) {
+  if (className == null) {
     list = mydoc.querySelectorAll('[mqtt]')
   } else {
-    list = mydoc.getElementsByClassName(class_name)
+    list = mydoc.getElementsByClassName(className)
   }
 
   // Iterate all elements found.
@@ -294,15 +294,17 @@ AppClient.prototype.autobind = function (mydoc, class_name) {
       console.log('Adding binding: ' + parameters)
     }
 
+    // FIXME
+    // EVAL CAN BE HARMFUL. HOW IS THIS USED?
     list[i].mqtt = eval('this.' + parameters)
   }
   // if (this.autobindings == null) {
   // }
 }
 
-AppClient.prototype.autobind_after_page_load = function (mydoc, class_name) {
+AppClient.prototype.autobind_after_page_load = function (mydoc, className) {
   mydoc.addEventListener('DOMContentLoaded', function () {
     //
-    this.autobind(class_name)
+    this.autobind(className)
   }, false)
 }

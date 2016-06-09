@@ -32,14 +32,14 @@ var Rotation = module.exports = function (id, relative, subproperty) {
 }
 
 // Called x times per second to preform the animation.
-Rotation.prototype.update = function (delta_time) {
+Rotation.prototype.update = function (deltaTime) {
   var change
 
   if (this.relative === false) {
     return
-  // change = this.update_direction(delta_time)
+  // change = this.update_direction(deltaTime)
   } else {
-    change = this.update_rotation(delta_time)
+    change = this.update_rotation(deltaTime)
   }
 
   this.position = this.position + change
@@ -47,8 +47,8 @@ Rotation.prototype.update = function (delta_time) {
   this.setvalue()
 }
 
-Rotation.prototype.update_rotation = function (delta_time) {
-  var f, speed_change, change, diff
+Rotation.prototype.update_rotation = function (deltaTime) {
+  var f, speedChange, change, diff
 
   f = this.force
   diff = this.max_speed - this.speed
@@ -59,23 +59,23 @@ Rotation.prototype.update_rotation = function (delta_time) {
       f = f * -1
     }
 
-    speed_change = (f / this.mass) * delta_time
+    speedChange = (f / this.mass) * deltaTime
 
-    if ((speed_change > diff && diff >= 0) || (speed_change < diff && diff < 0)) {
-      speed_change = diff
+    if ((speedChange > diff && diff >= 0) || (speedChange < diff && diff < 0)) {
+      speedChange = diff
     }
 
-    this.speed = this.speed + speed_change
+    this.speed = this.speed + speedChange
   }
 
-  change = this.speed * delta_time
+  change = this.speed * deltaTime
 
   // console.log(diff + " " + change)
 
   return change
 }
 
-Rotation.prototype.update_direction = function (delta_time) {}
+Rotation.prototype.update_direction = function (deltaTime) {}
 
 // New incomming data.
 Rotation.prototype.mqtt = function (topic, payload) {

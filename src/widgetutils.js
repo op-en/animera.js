@@ -22,10 +22,10 @@ widgetutils.parseparams = function (paramArray) {
   return paramArray
 }
 
-widgetutils.getdatahub = function (name, resource_path) {
+widgetutils.getdatahub = function (name, resourcePath) {
   name = name || 'datahub'
-  resource_path = resource_path || 'http://op-en.github.io/animera.js/dist/animera.js'
-  // resource_path = resource_path || '../animera.js'
+  resourcePath = resourcePath || 'http://op-en.github.io/animera.js/dist/animera.js'
+  // resourcePath = resourcePath || '../animera.js'
 
   // Find top most window.
   var topmost = window
@@ -37,7 +37,7 @@ widgetutils.getdatahub = function (name, resource_path) {
     // Check if we have a data library.
     if (!topmost.parent.hasOwnProperty(name)) {
       // Dynabically load libraries.
-      widgetutils.loadjsfile(resource_path, function () {
+      widgetutils.loadjsfile(resourcePath, function () {
         // console.log('datahub loaded')
         resolve(topmost[name])
       })

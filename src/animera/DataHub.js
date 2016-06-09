@@ -16,14 +16,14 @@ DataHub.prototype.getdatasource = function (sourcetype, url) {
   }
 
   // Nothing found then create.
-  var new_datasource = new this.datasources[sourcetype](url)
+  var newDatasource = new this.datasources[sourcetype](url)
 
   // And add to list.
-  if (typeof new_datasource !== 'undefined') {
-    this.datainstances.push(new_datasource)
+  if (typeof newDatasource !== 'undefined') {
+    this.datainstances.push(newDatasource)
   }
 
-  return new_datasource
+  return newDatasource
 }
 
 // /MAIN
