@@ -24,8 +24,7 @@ widgetutils.parseparams = function (paramArray) {
 
 widgetutils.getdatahub = function (name, resourcePath) {
   name = name || 'datahub'
-  resourcePath = resourcePath || 'http://op-en.github.io/animera.js/dist/animera.js'
-  // resourcePath = resourcePath || '../animera.js'
+  resourcePath = resourcePath || '<%= animeraPath %>'
 
   // Find top most window.
   var topmost = window

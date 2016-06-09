@@ -1,26 +1,29 @@
-var gulp = require('gulp')
-var util = require('gulp-util')
-var size = require('gulp-size')
-var del = require('del')
-var uglify = require('gulp-uglify')
-var inject = require('gulp-inject')
-var webpack = require('webpack-stream')
-// var htmlmin = require('gulp-htmlmin')
-var named = require('vinyl-named')
-var pump = require('pump')
-// set variable via $ gulp --type production
-var environment = util.env.type || 'development'
-var isProduction = environment === 'production'
-var webpackConfig = require('./webpack.config.js').getConfig(environment)
+const gulp = require('gulp')
+const util = require('gulp-util')
+const size = require('gulp-size')
+const del = require('del')
+const uglify = require('gulp-uglify')
+const inject = require('gulp-inject')
+const webpack = require('webpack-stream')
+// const htmlmin = require('gulp-htmlmin')
+const named = require('vinyl-named')
+const pump = require('pump')
+const replace = require('gulp-replace')
 
-var dist = 'dist/'
-var widget = dist + 'widgets/'
+// set variable via $ gulp --type production
+const environment = util.env.type || 'development'
+const isProduction = environment === 'production'
+const webpackConfig = require('./webpack.config.js').getConfig(environment)
+
+const dist = 'dist/'
+const widget = dist + 'widgets/'
 
 gulp.task('scripts', function (cb) {
   pump([
     gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
     named(),
     webpack(webpackConfig),
+    replace('<%= animeraPath %>', (isProduction ? 'http://op-en.github.io/animera.js/dist/animera.js' : '../animera.js')),
     isProduction ? uglify() : util.noop(),
     gulp.dest(dist),
     size({ title: 'js' })
