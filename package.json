@@ -7,7 +7,7 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "standard"
+    "test": "node_modules/.bin/standard"
   },
   "repository": {
     "type": "git",
