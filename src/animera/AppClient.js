@@ -1,6 +1,7 @@
 var io = require('socket.io-client')
 
 var Rotation = require('./Rotation')
+var DeadReckoning = require('./DeadReckoning')
 
 var AppClient = module.exports = function (url) {
   this.io = io.connect(url)
