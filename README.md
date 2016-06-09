@@ -5,9 +5,16 @@ This is a javascript framework for visualising realtime data from MQTT via an so
 
 ## Development
 
-Build using gulp
+Install development dependencies
 
 ```
+npm i
+```
+
+Build using gulp. Install gulp globally for shorter commands.
+
+```
+npm i -g gulp
 gulp
 ```
 
