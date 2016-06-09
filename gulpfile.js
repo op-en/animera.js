@@ -4,11 +4,14 @@ const size = require('gulp-size')
 const del = require('del')
 const uglify = require('gulp-uglify')
 const inject = require('gulp-inject')
-const webpack = require('webpack-stream')
+const webpackStream = require('webpack-stream')
 // const htmlmin = require('gulp-htmlmin')
 const named = require('vinyl-named')
 const pump = require('pump')
 const replace = require('gulp-replace')
+const webpack = require('webpack')
+const WebpackDevServer = require('webpack-dev-server')
+const watch = require('gulp-watch')
 
 // set variable via $ gulp --type production
 const environment = util.env.type || 'development'
@@ -22,7 +25,7 @@ gulp.task('scripts', function (cb) {
   pump([
     gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
     named(),
-    webpack(webpackConfig),
+    webpackStream(webpackConfig),
     replace('<%= animeraPath %>', (isProduction ? 'http://op-en.github.io/animera.js/dist/animera.js' : '../animera.js')),
     isProduction ? uglify() : util.noop(),
     gulp.dest(dist),
@@ -32,8 +35,28 @@ gulp.task('scripts', function (cb) {
   )
 })
 
+gulp.task('watch', ['scripts'], function (callback) {
+  if (isProduction) {
+    return
+  }
+  // Start a webpack-dev-server
+  const compiler = webpack(webpackConfig)
+
+  new WebpackDevServer(compiler, {
+    // server and middleware options
+  }).listen(8080, 'localhost', function (err) {
+    if (err) throw new util.PluginError('webpack-dev-server', err)
+    // Server listening
+    util.log('[webpack-dev-server]', 'http://localhost:8080/webpack-dev-server/index.html')
+
+  // keep the server alive or continue?
+  // callback()
+  })
+})
+
 gulp.task('widgets', ['build'], function () {
   return gulp.src('./widgets/*.html')
+    .pipe(watch('./widgets/*.html'))
     .pipe(inject(gulp.src(['./dist/widgetutils.js']), {
       starttag: '<!-- inject:widgetutils:{{ext}} -->',
       transform: function (filePath, file) {
@@ -54,7 +77,7 @@ gulp.task('clean', function (cb) {
 
 // by default build project and then watch files in order to trigger livereload
 gulp.task('default', ['clean'], function () {
-  gulp.start(['build', 'widgets'])
+  gulp.start(['build', 'widgets', 'watch'])
 })
 
 gulp.task('build', ['scripts'])

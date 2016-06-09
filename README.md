@@ -18,12 +18,21 @@ npm i -g gulp
 gulp
 ```
 
-or production version
+This builds all the source files and starts a webpack development server for you.
+
+Go to `http://localhost:8080` to see your files being served!
+
+## Production
+
+Build a production version using
 
 ```
 gulp --type production
 ```
 
+Then copy the dist folder to somewhere temporary, checkout the gh-pages branch, and deploy the new version.
+
 ## TODO
 
 - test framework with mocha and phantom.js
+- version hosting

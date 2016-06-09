@@ -35,10 +35,13 @@
     "gulp-size": "^2.1.0",
     "gulp-uglify": "^1.5.3",
     "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.6",
     "pump": "^1.0.1",
     "standard": "^7.1.2",
     "strip-loader": "^0.1.2",
     "vinyl-named": "^1.1.0",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1",
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {
