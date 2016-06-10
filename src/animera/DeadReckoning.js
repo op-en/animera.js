@@ -122,9 +122,6 @@ DeadReckoning.prototype.reckon = function () {
     return
   }
 
-  console.log("wait")
-  console.log(wait)
-
   if (wait < (1/30))
     wait = 1/30
 

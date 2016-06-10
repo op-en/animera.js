@@ -75,8 +75,8 @@
     // timeout - The time that the dead reckoning will continue without new updates. Defaults to 60 seconds.
     // goback - A flag that determines the behvour if the DR overshoots. True means that the value decreses False that is stops and wait. Defaults to false.
     // decimals - The number of decimals for the value injected into the HTML element. Defaults to 0.
-    
-    appserver.bind_topic_to_html_with_dead_reckoning(document.getElementById("value2"),topic,"time","energy","power",null,1,10,true)
+
+    appserver.bind_topic_to_html_with_dead_reckoning(document.getElementById("value2"),topic,"time","energy","power",null,1,60,true)
 
 
   })

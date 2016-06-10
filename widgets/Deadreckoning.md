@@ -24,7 +24,10 @@ The example is:
 appserver.bind_topic_to_html_with_dead_reckoning(document.getElementById("value2"),topic,"time","energy","power",null,1,10,true)
 ```
 
-
+To run the widget open it with the parameters neded in your browser. In the example below only the topic parameter is set.
+```
+[YOUR FILE PATH]/animera.js/dist/widgets/DeadReckoning.html?topic=test/dr
+```
 To generate data to test it you can use these nodered nodes
 
 ```json

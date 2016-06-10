@@ -16,6 +16,7 @@ var AppClient = module.exports = function (url) {
   this.source_address = url
   this.debug = true
   this.lock = 0
+  this.appclient = this
 
   var d = new Date()
 
@@ -41,45 +42,10 @@ var AppClient = module.exports = function (url) {
   //   console.log('AppServer instantiated')
   // }
 
+
+
   // Handle incomming MQTT messages
-  this.io.on('mqtt', function (msg) {
-    if (this.appclient.debug) {
-      console.log('RECIVED: ' + msg.topic + ' : ' + msg.payload)
-    }
-    //
-
-    // Any subscribers?
-    for (var topic in this.appclient.subscribers) {
-      // Match topics hand # sign
-      var handlers
-      var i
-
-      // If topic end with # and msg.topic contains topic -1 char then call handlers
-      if (topic.slice(-1) === '#') {
-        if (msg.topic.indexOf(topic.slice(0, -1)) === 0) {
-          handlers = this.appclient.subscribers[topic]
-
-          var arrayLength = handlers.lenght
-
-          for (i = 0; i < arrayLength; i++) {
-            handlers[i](msg.topic, msg.payload)
-          }
-        }
-      } else if (topic === msg.topic) {
-        // If topic does not contain # and is exact match with msg.topic call all handlers.
-        // console.log(topic)
-
-        handlers = this.appclient.subscribers[topic]
-
-        for (i = 0; i < handlers.length; i++) {
-          handlers[i](msg.topic, msg.payload)
-        }
-      }
-    }
-
-    // Update retention
-    this.appclient.retention[msg.topic] = msg.payload
-  })
+  this.io.on('mqtt', this.recieve)
 
   // Handle connection.
   this.io.on('connect', function () {
@@ -97,6 +63,60 @@ var AppClient = module.exports = function (url) {
   })
 
 // return this
+}
+
+AppClient.prototype.recieve = function (msg) {
+  if (this.appclient.debug) {
+    console.log('RECIVED: ' + msg.topic + ' : ' + msg.payload)
+  }
+  //
+
+  // Any subscribers?
+  for (var topic in this.appclient.subscribers) {
+    // Match topics hand # sign
+    var handlers
+    var i
+
+    // If topic end with # and msg.topic contains topic -1 char then call handlers
+    if (topic.slice(-1) === '#') {
+      if (msg.topic.indexOf(topic.slice(0, -1)) === 0) {
+        handlers = this.appclient.subscribers[topic]
+
+        var arrayLength = handlers.lenght
+
+        for (i = 0; i < arrayLength; i++) {
+          handlers[i](msg.topic, msg.payload)
+        }
+      }
+    } else if (topic === msg.topic) {
+      // If topic does not contain # and is exact match with msg.topic call all handlers.
+      // console.log(topic)
+
+      handlers = this.appclient.subscribers[topic]
+
+      for (i = 0; i < handlers.length; i++) {
+        handlers[i](msg.topic, msg.payload)
+      }
+    }
+  }
+
+  // Update retention
+  this.appclient.retention[msg.topic] = msg.payload
+}
+
+//Publish an mqtt message.
+AppClient.prototype.publish = function (topic, payload, locally) {
+  if (typeof (locally) === 'undefined')
+    locally = false
+
+  var msg = {"topic": topic,"payload":JSON.stringify(payload) }
+
+  //Publish to broker
+  if (locally == false)
+    this.io.emit('publish', msg)
+  else {
+    this.recieve(msg)
+  }
 }
 
 // Add a function that handles incomming MQTT data
@@ -256,8 +276,6 @@ AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, 
   // Creation animantion object.
   var callback = function (topic, payload) {
 
-    console.log("valueProperty")
-    console.log(valueProperty)
     var data = payload[valueProperty].toFixed(decimals)
 
     // Only if string.
