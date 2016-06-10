@@ -20,6 +20,9 @@ var DeadReckoning = module.exports = function (callback, timeProperty, valueProp
   this.updateDelta = updateDelta
   this.timeout = timeout
   this.goback = goback
+  this.timestamp = 0
+
+
 
   if (typeof this.goback === 'undefined') {
     this.goback = false
@@ -67,8 +70,9 @@ var DeadReckoning = module.exports = function (callback, timeProperty, valueProp
 
 DeadReckoning.prototype.reckon = function () {
   var now = new Date().getTime() / 1000.0
+
   var delta = now - this.timestamp
-  var wait = 0
+  var wait = 9999999
 
   // Clear timers
   if (this.timer != null) {
@@ -85,11 +89,12 @@ DeadReckoning.prototype.reckon = function () {
   var current = this.value + (this.rate * delta)
   var interpolationTime = now
 
+
   // Wait if prevous calculations overshoot the current and the goback setting is false.
   if (this.goback === false && current < this.current) {
     // Wait unil the value catches up with the derived value.
     wait = (this.current - current) / this.rate
-    this.timer = setTimeout(function (reckon) { reckon() }, wait * 1000, this.reckon)
+    this.timer = setTimeout(function (dr) { dr.reckon() }, wait * 1000, this)
     return
   }
 
@@ -101,7 +106,8 @@ DeadReckoning.prototype.reckon = function () {
   dic[this.valueProperty] = current
   dic[this.rateProperty] = this.rate
 
-  this.callback(this.topic, JSON.stringify(dic))
+
+  this.callback(this.topic, dic)
 
   // Calculate next update.
   if (this.updateFq != null) {
@@ -116,7 +122,13 @@ DeadReckoning.prototype.reckon = function () {
     return
   }
 
-  this.timer = setTimeout(function (reckon) { reckon() }, wait * 1000, this.reckon)
+  console.log("wait")
+  console.log(wait)
+
+  if (wait < (1/30))
+    wait = 1/30
+
+  this.timer = setTimeout(function (dr) { dr.reckon() }, wait * 1000, this)
 }
 
 DeadReckoning.prototype.mqtt = function (topic, payload) {

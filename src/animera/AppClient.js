@@ -244,6 +244,37 @@ AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative,
   return rotation
 }
 
+
+
+AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback,decimals) {
+
+
+  if (typeof decimals === 'undefined') {
+    decimals = 0
+  }
+
+  // Creation animantion object.
+  var callback = function (topic, payload) {
+
+    console.log("valueProperty")
+    console.log(valueProperty)
+    var data = payload[valueProperty].toFixed(decimals)
+
+    // Only if string.
+    element.innerHTML = '' + data
+  }
+
+  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback, decimals)
+
+
+
+
+  // Add update function.
+  this.subscribe(topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
+
+  return deadreckoning
+}
+
 AppClient.prototype.autobind = function (mydoc, className) {
   if (typeof (mydoc) === 'undefined') mydoc = document
 
