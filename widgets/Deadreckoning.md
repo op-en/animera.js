@@ -1,3 +1,5 @@
+##Dead Reckoning example
+
 
 The DeadReckoning widget shows how to use the dead reckoning function in animera.js
 
