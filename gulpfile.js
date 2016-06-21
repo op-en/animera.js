@@ -26,7 +26,7 @@ gulp.task('scripts', function (cb) {
     gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
     named(),
     webpackStream(webpackConfig),
-    replace('<%= animeraPath %>', (isProduction ? 'http://op-en.github.io/animera.js/dist/animera.js' : '../animera.js')),
+    replace('<%= animeraPath %>', (isProduction ? 'http://op-en.github.io/animera.js/dist/animera.js' : 'http://localhost:8080/assets/animera.js')),
     isProduction ? uglify() : util.noop(),
     gulp.dest(dist),
     size({ title: 'js' })
@@ -43,7 +43,8 @@ gulp.task('watch', ['scripts'], function (callback) {
   const compiler = webpack(webpackConfig)
 
   new WebpackDevServer(compiler, {
-    // server and middleware options
+    hot: true,
+    publicPath: '/assets/'
   }).listen(8080, 'localhost', function (err) {
     if (err) throw new util.PluginError('webpack-dev-server', err)
     // Server listening
