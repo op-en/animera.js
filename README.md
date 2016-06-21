@@ -18,9 +18,9 @@ npm i -g gulp
 gulp
 ```
 
-This builds all the source files and starts a webpack development server for you.
+This builds all the source files and starts a webpack development server for you. You should use this server for development since it automatically rebuilds what is needed on updates, which dramatically speeds up development time.
 
-Go to `http://localhost:8080` to see your files being served!
+Go to `http://localhost:8080` and select the file that you want to debug!
 
 ## Production
 
