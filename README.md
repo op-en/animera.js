@@ -22,17 +22,35 @@ This builds all the source files and starts a webpack development server for you
 
 Go to `http://localhost:8080` and select the file that you want to debug!
 
-## Production
+## Deployment
 
-Build a production version using
+We use the github release system.
+
+When you are ready for a new release, update the version, tag and commit by:
+
+```
+npm version major/minor/patch
+```
+
+Then build a production version using
 
 ```
 gulp --type production
 ```
 
-Then copy the dist folder to somewhere temporary, checkout the gh-pages branch, and deploy the new version.
+Be sure to follow [Semantic Versioning](http://semver.org/), namely:
+
+Given a version number MAJOR.MINOR.PATCH, increment the:
+
+1. MAJOR version when you make incompatible API changes,
+1. MINOR version when you add functionality in a backwards-compatible manner, and
+1. PATCH version when you make backwards-compatible bug fixes.
+
+Then go to the [releases page](https://github.com/op-en/animera.js/releases) and write some release notes for the tag, and add the compiled production builds as binaries.
+
+That way, thay are directly downloadable in the browser.
 
 ## TODO
 
 - test framework with mocha and phantom.js
-- version hosting
+- ~~version hosting~~
