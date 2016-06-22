@@ -57,7 +57,7 @@ gulp.task('watch', ['scripts'], function (callback) {
 
 gulp.task('widgets', ['build'], function () {
   return gulp.src('./widgets/*.html')
-    .pipe(watch('./widgets/*.html'))
+    .pipe(isProduction ? util.noop() : watch('./widgets/*.html'))
     .pipe(inject(gulp.src(['./dist/widgetutils.js']), {
       starttag: '<!-- inject:widgetutils:{{ext}} -->',
       transform: function (filePath, file) {
