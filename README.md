@@ -46,6 +46,12 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 1. MINOR version when you add functionality in a backwards-compatible manner, and
 1. PATCH version when you make backwards-compatible bug fixes.
 
+You might have to push the git tags to the server before it is visible on Github.
+
+```
+git push --tags
+```
+
 Then go to the [releases page](https://github.com/op-en/animera.js/releases) and write some release notes for the tag, and add the compiled production builds as binaries.
 
 That way, thay are directly downloadable in the browser.
