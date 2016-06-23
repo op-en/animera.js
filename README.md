@@ -29,7 +29,7 @@ We use the github release system.
 When you are ready for a new release, update the version, tag and commit by:
 
 ```
-npm version major/minor/patch
+npm version [major|minor|patch]
 ```
 
 Then build a production version using
