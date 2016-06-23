@@ -1,6 +1,6 @@
 {
   "name": "animera.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "This is a javascript framework for visualising realtime data from MQTT via an socket.io bridge.",
   "main": "dist/animera.js",
   "directories": {
