@@ -21,6 +21,8 @@ var DeadReckoning = module.exports = function (callback, timeProperty, valueProp
   this.timeout = timeout
   this.goback = goback
   this.timestamp = 0
+  this.warn = null
+  this.warn_callback = function () {console.log("Warning triggerd!");}
 
 
 
@@ -80,9 +82,16 @@ DeadReckoning.prototype.reckon = function () {
     this.timer = null
   }
 
+  console.log("Delta: " + delta);
+
   // If the data is to old do nothing.
   if (delta > this.timeout) {
     return
+  }
+
+  if (this.warn != null && (now > this.warn) )
+  {
+    this.warn_callback()
   }
 
   // Calculate current value
@@ -125,6 +134,8 @@ DeadReckoning.prototype.reckon = function () {
   if (wait < (1/30))
     wait = 1/30
 
+  console.log("Wait: " + wait);
+
   this.timer = setTimeout(function (dr) { dr.reckon() }, wait * 1000, this)
 }
 
@@ -139,10 +150,24 @@ DeadReckoning.prototype.mqtt = function (topic, payload) {
   this.topic = topic
 
   // Parse data
-  payload = JSON.parse(payload)
+  if (typeof payload !== 'object') {
+    payload = JSON.parse(payload)
+  }
+
   var rate = parseFloat(payload[this.rateProperty])
   var value = parseFloat(payload[this.valueProperty])
   var timestamp = parseFloat(payload[this.timeProperty])
+
+  // All parameters read save for later.
+  this.value = value
+  this.rate = rate
+  this.timestamp = timestamp
+
+  // Calculate current and next value to send
+  this.reckon()
+}
+
+DeadReckoning.prototype.update = function (timestamp,rate,value) {
 
   // All parameters read save for later.
   this.value = value

@@ -73,17 +73,19 @@ AppClient.prototype.recieve = function (msg) {
 
   // Any subscribers?
   for (var topic in this.appclient.subscribers) {
+
     // Match topics hand # sign
     var handlers
     var i
 
     // If topic end with # and msg.topic contains topic -1 char then call handlers
     if (topic.slice(-1) === '#') {
+
       if (msg.topic.indexOf(topic.slice(0, -1)) === 0) {
         handlers = this.appclient.subscribers[topic]
 
-        var arrayLength = handlers.lenght
-
+        var arrayLength = handlers.length
+        
         for (i = 0; i < arrayLength; i++) {
           handlers[i](msg.topic, msg.payload)
         }
@@ -109,7 +111,11 @@ AppClient.prototype.publish = function (topic, payload, locally) {
   if (typeof (locally) === 'undefined')
     locally = false
 
-  var msg = {"topic": topic,"payload":JSON.stringify(payload) }
+  if (typeof payload === 'object') {
+    payload = JSON.stringify(payload)
+  }
+
+  var msg = {"topic": topic,"payload":payload }
 
   //Publish to broker
   if (locally == false)
@@ -264,7 +270,25 @@ AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative,
   return rotation
 }
 
+AppClient.prototype.dead_reckoning = function (callback, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback) {
 
+
+  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
+
+
+  return deadreckoning
+}
+
+AppClient.prototype.bind_topic_to_callback_with_dead_reckoning = function (callback, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback) {
+
+
+  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
+
+  // Add update function.
+  this.subscribe(topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
+
+  return deadreckoning
+}
 
 AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback,decimals) {
 
@@ -282,7 +306,7 @@ AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, 
     element.innerHTML = '' + data
   }
 
-  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback, decimals)
+  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
 
 
 
