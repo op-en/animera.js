@@ -26,7 +26,7 @@ gulp.task('scripts', function (cb) {
     gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
     named(),
     webpackStream(webpackConfig),
-    replace('<%= animeraPath %>', (isProduction ? 'http://op-en.github.io/animera.js/dist/animera.js' : 'http://localhost:8080/assets/animera.js')),
+    replace('<%= animeraPath %>', (isProduction ? 'https://github.com/op-en/animera.js/releases/download/v1.0.1/animera.js' : 'http://localhost:8080/assets/animera.js')),
     isProduction ? uglify() : util.noop(),
     gulp.dest(dist),
     size({ title: 'js' })
