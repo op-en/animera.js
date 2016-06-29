@@ -30,8 +30,11 @@
 
 					</div>
 
-					<div id="powerbar">TEST </div>
-					<div id="bracket" style="margin-top:10px; border-bottom: solid black 1px; border-left: solid black 1px; border-right: solid black 1px; height:10px;"> </div>
+					<div id="powerbar"> </div>
+					<div id="bracketbar">
+					<div id="bracket" style="display:inline-block; margin-top:10px; border-bottom: solid black 1px; border-left: solid black 1px; border-right: solid black 1px; height:10px;"> </div>
+					<div id="bracket2" style="display:inline-block; position:relative; left:-3px; margin-top:10px; border-bottom: solid red 1px; border-left: solid red 1px; border-right: solid red 1px; height:10px; width:10px;"> </div>
+					</div>
 					<div class="label" id="bracket_label">Drivs av dina Wattar </div>
 				</div>
 
@@ -57,6 +60,8 @@
 										<div id="remove_btn" style="background-color: grey; border-radius: 8px; width:50%; margin-left: 25%; margin-top:10px; text-align: center;" onclick="edit_item(%ID%)">Edit</div>
 
 				</div>
+
+				<div id="sugestions"></div>
 
 		</body>
 
@@ -97,6 +102,20 @@
 				visibility: hidden;
 				overflow-y: scroll;
 
+
+			}
+			#sugestions {
+				border: solid lightgrey 1px;
+				height: 60px;
+				width: 60px;
+				border-radius: 30px;
+				position:relative;
+				top:0px;
+				left: 20%;
+				background-image: url(Shopping_cart.svg);
+
+				color: black;
+				z-index:99;
 
 			}
 
@@ -200,6 +219,7 @@
     		console.log("Acess deinied to userinfo!");
 				userinfo = {"stuff":{"items":[]}}
 				userinfo.stuff.items = [all_devices[0],all_devices[1]]
+				userinfo.totally_owned_watts = 18
 
 			}
 
@@ -360,9 +380,11 @@
 			var html = "";
 			var div = "<div style='height:20px; width:%WIDTH%px; background-color:%COLOR%; border: solid white 1px; display:inline-block;'></div>";
 			var n = 0
-			var width
-			var totalwidth = 0
+			var width = 0
+			var powered_width = 0
+			var unpowered_width = 0
 			var n_powered = 0
+			var n_unpowered = 0
 
 			userinfo.stuff.items.forEach(function (device){
 
@@ -374,21 +396,21 @@
 				for (i=0;i < device.average_power;i++) {
 					n++;
 
-
-
-
-					if (n < 21) {
+					if (n < userinfo.totally_owned_watts) {
 						html += div.replace("%WIDTH%",""+(width-2)).replace("%COLOR%","orange");
-						totalwidth += width
+						powered_width += width
 						n_powered++;
 					}
 					else {
 						html += div.replace("%WIDTH%",""+(width-2)).replace("%COLOR%","lightgrey");
+						unpowered_width += width
+						n_unpowered++;
 					}
 
 				}
 
 				device.powered = n_powered
+
 
 			});
 
@@ -399,12 +421,20 @@
 			target_div.innerHTML=html;
 
 			var target_div = document.getElementById("bracket");
-
-			target_div.style.width = "" + ( totalwidth  -2) + "px"
+			target_div.style.width = "" + ( powered_width  -2) + "px"
 
 			var target_div = document.getElementById("bracket_label");
+			target_div.style.width = "" + ( powered_width -2) + "px"
 
-			target_div.style.width = "" + ( totalwidth -2) + "px"
+			var target_div = document.getElementById("bracket2");
+			target_div.style.width = "" + ( unpowered_width  -2) + "px"
+
+			if (unpowered_width == 0) {
+				target_div.style.visibility = "hidden"
+			}
+			else {
+				target_div.style.visibility = "visible"
+			}
 
 
 

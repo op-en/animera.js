@@ -45,11 +45,12 @@ widgetutils.init().then(function (datahub) {
   var topic = widgetutils.paramArray["topic"];
   var subproperty = widgetutils.paramArray["subproperty"];
   var max = widgetutils.paramArray["max"];
+  var decimals = widgetutils.paramArray["decimals"];
 
   var appserver = datahub.getdatasource("op-en_appserver",server);
 
   //Bind text and animation to data.
-  appserver.bind_topic_to_html(document.getElementById("value"),topic,subproperty," W");
+  appserver.bind_topic_to_html(document.getElementById("value"),topic,subproperty," W",decimals);
   appserver.bind_topic_to_rotation(document.getElementById("sun"), topic,true,subproperty,[0,max],[0,0.12],true);
 })
 </script>
