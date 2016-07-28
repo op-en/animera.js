@@ -153,7 +153,7 @@ AppClient.prototype.subscribe = function (topic, handler) {
   this.lock--
 }
 
-AppClient.prototype.subscribe_to_subproperty = function (topic, subproperty, handler) {
+AppClient.prototype.subscribeToSubproperty = function (topic, subproperty, handler) {
   if (typeof (subproperty) === 'undefined') subproperty = null
 
   this.subscribe(topic, function (topic, payload) {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
   <html>
   <head>
-    <!-- inject:widgetutils:js -->
+    <!-- inject:animerawidget:js -->
     <!-- endinject -->
   <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
   </head>
@@ -9,8 +9,6 @@
 <div id="outer" >
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
-
-
 <g id="i9">
 	<g>
 		<path class="c9" stroke="#FFFFFF" stroke-width="4" stroke-miterlimit="10" d="M81.9,42.8v-8.7c0-6.1-5-11.1-11.1-11.1h-8.7
@@ -108,22 +106,17 @@
   }
 
   setnumber();
-  widgetutils.init().then(function (datahub) {
-        console.log(widgetutils.paramArray);
-        var server = widgetutils.paramArray["server"];
-        var topic = widgetutils.paramArray["topic"];
-        var subproperty = widgetutils.paramArray["subproperty"];
-        var max = widgetutils.paramArray["max"];
-        var appserver = datahub.getdatasource("op-en_appserver",server);
+  AnimeraWidget.init({
+    topic: 'test/topic1',
+    subproperty: 'power'
+  }).then(function (objects) {
+    var settings = objects.settings;
+    var controller = objects.animera.getController(settings.server)
 
-        //Bind text and animation to data.
-        appserver.bind_topic_to_html(document.getElementById("value2"),topic,subproperty,"");
-        //appserver.bind_topic_to_rotation("sun", topic,true,subproperty,[0,max],[0,0.12],true);
-
-        appserver.subscribe_to_subproperty(topic,subproperty,function (topic,data) {
-        //appserver.subscribe(topic,function (topic,data) {
-        	setnumber(parseInt(data));
-        });
+    controller.bindTopicToHtml(document.getElementById("value2"), settings)
+    controller.datasource.subscribeToSubproperty(settings.topic, settings.subproperty, function(topic, data) {
+      setnumber(parseInt(data))
+    })
   })
 </script>
   <style>
