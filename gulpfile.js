@@ -23,7 +23,7 @@ const widget = dist + 'widgets/'
 
 gulp.task('scripts', function (cb) {
   pump([
-    gulp.src([webpackConfig.entry.animera, webpackConfig.entry.widgetutils]),
+    gulp.src([webpackConfig.entry.animera, webpackConfig.entry.animeraWidget]),
     named(),
     webpackStream(webpackConfig),
     replace('<%= animeraPath %>', (isProduction ? 'https://github.com/op-en/animera.js/releases/download/v1.0.1/animera.js' : 'http://localhost:8080/assets/animera.js')),
@@ -58,8 +58,8 @@ gulp.task('watch', ['scripts'], function (callback) {
 gulp.task('widgets', ['build'], function () {
   return gulp.src('./widgets/*.html')
     .pipe(isProduction ? util.noop() : watch('./widgets/*.html'))
-    .pipe(inject(gulp.src(['./dist/widgetutils.js']), {
-      starttag: '<!-- inject:widgetutils:{{ext}} -->',
+    .pipe(inject(gulp.src(['./dist/AnimeraWidget.js']), {
+      starttag: '<!-- inject:animerawidget:{{ext}} -->',
       transform: function (filePath, file) {
         // return file contents as string
         return '<script>' + file.contents.toString('utf8') + '</script>'

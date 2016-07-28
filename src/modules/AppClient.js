@@ -42,8 +42,6 @@ var AppClient = module.exports = function (url) {
   //   console.log('AppServer instantiated')
   // }
 
-
-
   // Handle incomming MQTT messages
   this.io.on('mqtt', this.recieve)
 
@@ -59,7 +57,7 @@ var AppClient = module.exports = function (url) {
       this.emit('subscribe', {'topic': topic})
     }
 
-    // Subscribe
+  // Subscribe
   })
 
 // return this
@@ -73,14 +71,12 @@ AppClient.prototype.recieve = function (msg) {
 
   // Any subscribers?
   for (var topic in this.appclient.subscribers) {
-
     // Match topics hand # sign
     var handlers
     var i
 
     // If topic end with # and msg.topic contains topic -1 char then call handlers
     if (topic.slice(-1) === '#') {
-
       if (msg.topic.indexOf(topic.slice(0, -1)) === 0) {
         handlers = this.appclient.subscribers[topic]
 
@@ -106,21 +102,22 @@ AppClient.prototype.recieve = function (msg) {
   this.appclient.retention[msg.topic] = msg.payload
 }
 
-//Publish an mqtt message.
+// Publish an mqtt message.
 AppClient.prototype.publish = function (topic, payload, locally) {
-  if (typeof (locally) === 'undefined')
+  if (typeof (locally) === 'undefined') {
     locally = false
+  }
 
   if (typeof payload === 'object') {
     payload = JSON.stringify(payload)
   }
 
-  var msg = {"topic": topic,"payload":payload }
+  var msg = { 'topic': topic, 'payload': payload }
 
-  //Publish to broker
-  if (locally == false)
+  // Publish to broker
+  if (locally === false) {
     this.io.emit('publish', msg)
-  else {
+  } else {
     this.recieve(msg)
   }
 }
@@ -178,7 +175,7 @@ AppClient.prototype.subscribe_to_subproperty = function (topic, subproperty, han
 
       data = payload[subproperty]
 
-      // console.log(data)
+    // console.log(data)
     } else {
       data = payload
     }
@@ -192,9 +189,12 @@ AppClient.prototype.subscribe_to_subproperty = function (topic, subproperty, han
 // Topic is the mqtt topic
 // element is the id of an html element.
 // If mqtt data is Json the optional subproperty can be used to get a specific property of the data.
-AppClient.prototype.bind_topic_to_html = function (element, topic, subproperty, unit,decimals) {
-  if (typeof (subproperty) === 'undefined') subproperty = null
-  if (typeof (unit) === 'undefined') unit = ''
+AppClient.prototype.bindTopicToHtml = function (element, settings) {
+  var subproperty = settings.subproperty || null
+  var unit = settings.unit || ''
+  var topic = settings.topic || ''
+  var decimals = settings.decimals || null
+
   if (typeof element === 'string' || element instanceof String) {
     element = document.getElementById(element)
   }
@@ -213,15 +213,15 @@ AppClient.prototype.bind_topic_to_html = function (element, topic, subproperty, 
       data = payload
     }
 
-    //Is the decimals argument set. 
+    // Is the decimals argument set.
     if (typeof (decimals) !== 'undefined') {
-        //See if number
-        var value = parseFloat(data)
+      // See if number
+      var value = parseFloat(data)
 
-        //If it is adjust the number of decimals.
-        if (!isNaN(value)) {
-          data = value.toFixed(decimals)
-        }
+      // If it is adjust the number of decimals.
+      if (!isNaN(value)) {
+        data = value.toFixed(decimals)
+      }
     }
     // Only if string.
     element.innerHTML = '' + data + unit
@@ -249,17 +249,22 @@ AppClient.prototype.bind_topic_to_style = function (element, topic, style, subpr
   })
 }
 
-// New version
-AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative, subproperty, inputRange, outputRange, clamp) {
-  if (typeof (relative) === 'undefined') relative = true
-  if (typeof (subproperty) === 'undefined') subproperty = null
-
-  if (typeof (inputRange) === 'undefined') inputRange = null
-  if (typeof (outputRange) === 'undefined') outputRange = null
-  if (typeof (clamp) === 'undefined') clamp = false
+AppClient.prototype.bindTopicToRotation = function (element, settings) {
+  console.log(settings)
+  var relative = settings.relative || true
+  var subproperty = settings.subproperty || null
+  var inputRange = settings.inputRange || null
+  var max = settings.max || null
+  var outputRange = settings.outputRange || null
+  var clamp = settings.clamp || null
+  var topic = settings.topic || ''
 
   // Creation animantion object.
   var rotation = new Rotation(element, relative, subproperty)
+
+  if (inputRange === null && max !== null) {
+    inputRange = [0, max]
+  }
 
   if (inputRange != null && outputRange != null) {
     rotation.input_m = (outputRange[1] - outputRange[0]) / (inputRange[1] - inputRange[0])
@@ -281,17 +286,12 @@ AppClient.prototype.bind_topic_to_rotation = function (element, topic, relative,
 }
 
 AppClient.prototype.dead_reckoning = function (callback, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback) {
-
-
   var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
-
 
   return deadreckoning
 }
 
 AppClient.prototype.bind_topic_to_callback_with_dead_reckoning = function (callback, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback) {
-
-
   var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
 
   // Add update function.
@@ -300,16 +300,13 @@ AppClient.prototype.bind_topic_to_callback_with_dead_reckoning = function (callb
   return deadreckoning
 }
 
-AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback,decimals) {
-
-
+AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback, decimals) {
   if (typeof decimals === 'undefined') {
     decimals = 0
   }
 
   // Creation animantion object.
   var callback = function (topic, payload) {
-
     var data = payload[valueProperty].toFixed(decimals)
 
     // Only if string.
@@ -317,9 +314,6 @@ AppClient.prototype.bind_topic_to_html_with_dead_reckoning = function (element, 
   }
 
   var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
-
-
-
 
   // Add update function.
   this.subscribe(topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
@@ -365,7 +359,7 @@ AppClient.prototype.autobind = function (mydoc, className) {
     if (list[i].id === '') {
       // console.log("No id")
       list[i].id = '_mqtt_' + this.autoid
-      // console.log(list[i].id);
+      // console.log(list[i].id)
       this.autoid = this.autoid + 1
     }
 
@@ -382,8 +376,8 @@ AppClient.prototype.autobind = function (mydoc, className) {
     // EVAL CAN BE HARMFUL. HOW IS THIS USED?
     list[i].mqtt = eval('this.' + parameters)
   }
-  // if (this.autobindings == null) {
-  // }
+// if (this.autobindings == null) {
+// }
 }
 
 AppClient.prototype.autobind_after_page_load = function (mydoc, className) {
