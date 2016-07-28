@@ -1,6 +1,8 @@
 var Rotation = require('./Rotation')
 var DeadReckoning = require('./DeadReckoning')
 
+const parseSettings = require('./parseSettings')
+
 var Controller = module.exports = function (datasource) {
   this.datasource = datasource
   this.animations = []
@@ -95,8 +97,6 @@ Controller.prototype.bind_topic_to_style = function (element, topic, style, subp
 }
 
 Controller.prototype.bindTopicToRotation = function (element, settings) {
-  // console.log('rotate')
-  // console.log(settings)
   var relative = settings.relative || true
   var subproperty = settings.subproperty || null
   var inputRange = settings.inputRange || null
@@ -104,6 +104,10 @@ Controller.prototype.bindTopicToRotation = function (element, settings) {
   var outputRange = settings.outputRange || null
   var clamp = settings.clamp || null
   var topic = settings.topic || ''
+
+  if (this.debug) {
+    console.log(settings)
+  }
 
   // Creation animantion object.
   var rotation = new Rotation(element, relative, subproperty)
@@ -167,10 +171,9 @@ Controller.prototype.bind_topic_to_html_with_dead_reckoning = function (element,
   return deadreckoning
 }
 
-Controller.prototype.autobind = function (bindDocument, className) {
+Controller.prototype.autobind = function (bindDocument, objectData) {
   const controller = this
   bindDocument = bindDocument || document
-  className = className || 'animera'
 
   // Find all object tags in current document
   const objects = bindDocument.getElementsByTagName('object')
@@ -179,26 +182,23 @@ Controller.prototype.autobind = function (bindDocument, className) {
   // This results in the whole tree being autobinded (autobound?)
   for (let subObject of objects) {
     subObject.addEventListener('load', function () {
-      controller.autobind(subObject.contentDocument)
+      // We also parse the settings of the data string, so that they are transferred to the autobind object
+      controller.autobind(subObject.contentDocument, subObject.data)
     })
   }
 
   // Find all elements that have the requested autobind class
-  const bindObjects = bindDocument.getElementsByClassName(className)
+  const bindObjects = bindDocument.querySelectorAll('[animera]')
 
   // Iterate over all the objects to bind
   for (let bindObject of bindObjects) {
     // Extract the requested method and it's settings
-    let method
-    let settings
-    if (bindObject.dataset) {
-      method = bindObject.dataset.method
-      settings = bindObject.dataset.settings
-    } else {
-      // If html5 data-* attributes are not supported, such as in SVG1.1, we need to use getAttribute instead
-      method = bindObject.getAttribute('data-method')
-      settings = bindObject.getAttribute('data-settings')
-    }
+    const animera = bindObject.getAttribute('animera')
+    const method = animera.split('?')[0]
+    // The settings are parsed two times if we have objectData
+    // once to extract the default values in the svg/widget
+    // and once to override them with the values specified in the object tag
+    const settings = objectData ? parseSettings(objectData, parseSettings(animera)) : parseSettings(animera)
 
     if (method == null) {
       console.warn('Failed to autobind: animera class present but no data-method attribute set')
@@ -207,14 +207,6 @@ Controller.prototype.autobind = function (bindDocument, className) {
 
     // If there is a method with the name supplied, go ahead
     if (typeof controller[method] === 'function') {
-      try {
-        settings = JSON.parse(settings)
-      } catch (e) {
-        console.error(e)
-        console.warn('Failed to autobind: animera class present but data-settings was not valid JSON')
-        continue
-      }
-
       // Bind the method!
       controller[method](bindObject, settings)
     } else {

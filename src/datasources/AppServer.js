@@ -58,7 +58,6 @@ AppClient.prototype.recieve = function (msg) {
   if (this.appclient.debug) {
     console.log('RECIVED: ' + msg.topic + ' : ' + msg.payload)
   }
-  //
 
   // Any subscribers?
   for (var topic in this.appclient.subscribers) {
