@@ -9,30 +9,6 @@ var AppClient = module.exports = function (url) {
   this.sourcetype = 'appserver'
   this.source_address = url
 
-  // var d = new Date()
-  //
-  // this.lastupdate = d.getTime()
-
-  // this.timer = setInterval(function (appclient) {
-  //   // Get time.
-  //   var d = new Date()
-  //   var n = d.getTime()
-  //   var delta = n - appclient.lastupdate
-  //
-  //   appclient.lastupdate = n
-  //
-  //   // Call all animation functions.
-  //   var arrayLength = appclient.rotations.length
-  //
-  //   for (var i = 0; i < arrayLength; i++) {
-  //     appclient.rotations[i].update(delta)
-  //   }
-  // }, 30, this)
-
-  // if (this.debug) {
-  //   console.log('AppServer instantiated')
-  // }
-
   // Handle incomming MQTT messages
   this.io.on('mqtt', this.recieve)
 
@@ -47,11 +23,7 @@ var AppClient = module.exports = function (url) {
       console.log('Subscribing to ' + topic)
       this.emit('subscribe', {'topic': topic})
     }
-
-  // Subscribe
   })
-
-// return this
 }
 
 AppClient.prototype.recieve = function (msg) {
@@ -114,17 +86,11 @@ AppClient.prototype.publish = function (topic, payload, locally) {
 
 // Add a function that handles incomming MQTT data
 AppClient.prototype.subscribe = function (topic, handler) {
-  // var d = new Date()
-  // var n = d.getTime()
-
   this.lock++
 
   if (this.lock > 1) {
     console.log('Bang!!')
   }
-
-  // console.log(n)
-
   // Check if topic exists
   if (!(topic in this.subscribers)) {
     // console.log("new topic")
@@ -147,25 +113,16 @@ AppClient.prototype.subscribe = function (topic, handler) {
     }
   }
 
-  // console.log(this.lock)
-  // console.log(n)
-
   this.lock--
 }
 
 AppClient.prototype.subscribeToSubproperty = function (topic, subproperty, handler) {
-  if (typeof (subproperty) === 'undefined') subproperty = null
-
+  subproperty = subproperty || null
   this.subscribe(topic, function (topic, payload) {
     var data
     if (subproperty != null) {
       payload = JSON.parse(payload)
-
-      // console.log(payload)
-
       data = payload[subproperty]
-
-    // console.log(data)
     } else {
       data = payload
     }
