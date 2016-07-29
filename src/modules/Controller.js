@@ -97,7 +97,10 @@ Controller.prototype.bind_topic_to_style = function (element, topic, style, subp
 }
 
 Controller.prototype.bindTopicToRotation = function (element, settings) {
-  var relative = settings.relative || true
+  var relative = settings.relative
+  if (relative === undefined) {
+    relative = true
+  }
   var subproperty = settings.subproperty || null
   var inputRange = settings.inputRange || null
   var max = settings.max || null
