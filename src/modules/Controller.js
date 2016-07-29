@@ -153,23 +153,19 @@ Controller.prototype.bind_topic_to_callback_with_dead_reckoning = function (call
   return deadreckoning
 }
 
-Controller.prototype.bind_topic_to_html_with_dead_reckoning = function (element, topic, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback, decimals) {
-  if (typeof decimals === 'undefined') {
-    decimals = 0
-  }
-
+Controller.prototype.bindTopicToHtmlWithDeadReckoning = function (element, settings) {
   // Creation animantion object.
   var callback = function (topic, payload) {
-    var data = payload[valueProperty].toFixed(decimals)
+    var data = payload[settings.valueProperty].toFixed(settings.decimals)
 
     // Only if string.
     element.innerHTML = '' + data
   }
 
-  var deadreckoning = new DeadReckoning(callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback)
+  var deadreckoning = new DeadReckoning(callback, settings)
 
   // Add update function.
-  this.datasource.subscribe(topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
+  this.datasource.subscribe(settings.topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
 
   return deadreckoning
 }

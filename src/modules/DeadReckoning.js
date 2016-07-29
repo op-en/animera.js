@@ -11,60 +11,24 @@
 // Given the absolute value of the counter at a given time and the rate of change i.e. the power this class will progress the
 // meter value in accorance with the rate/power.
 
-var DeadReckoning = module.exports = function (callback, timeProperty, valueProperty, rateProperty, updateFq, updateDelta, timeout, goback) {
+var DeadReckoning = module.exports = function (callback, settings) {
   this.callback = callback
-  this.valueProperty = valueProperty
-  this.rateProperty = rateProperty
-  this.timeProperty = timeProperty
-  this.updateFq = updateFq
-  this.updateDelta = updateDelta
-  this.timeout = timeout
-  this.goback = goback
+  this.valueProperty = settings.valueProperty || 'value'
+  this.rateProperty = settings.rateProperty || 'rate'
+  this.timeProperty = settings.timeProperty || 'time'
+  this.updateFq = settings.updateFq || null
+  this.updateDelta = settings.updateDelta || (this.updateFq === null ? 1.0 : null)
+  this.timeout = settings.timeout || 60
+  this.goback = settings.goback || false
   this.timestamp = 0
   this.warn = null
-  this.warn_callback = function () {console.log("Warning triggerd!");}
-
-
-
-  if (typeof this.goback === 'undefined') {
-    this.goback = false
-  }
-
-  if (typeof this.timeout === 'undefined') {
-    this.timeout = 60
-  }
-
-  if (typeof this.valueProperty === 'undefined') {
-    this.valueProperty = 'value'
-  }
-
-  if (typeof this.rateProperty === 'undefined') {
-    this.rateProperty = 'rate'
-  }
-
-  if (typeof this.timeProperty === 'undefined') {
-    this.timeProperty = 'time'
-  }
-
-  if (typeof this.updateFq === 'undefined') {
-    this.updateFq = null
-  }
-
-  if (typeof this.updateDelta === 'undefined') {
-    if (this.updateFq == null) {
-      this.updateDelta = 1.0
-    } else {
-      this.updateDelta = null
-    }
-  }
+  this.warn_callback = function () { console.log('Warning triggerd!') }
 
   this.value = 0
   this.rate = 0
   this.timestamp = 0
-
   this.current = 0
   this.interpolation_time = 0
-
   this.timer = null
 
   return this
@@ -82,22 +46,20 @@ DeadReckoning.prototype.reckon = function () {
     this.timer = null
   }
 
-  console.log("Delta: " + delta);
+  console.log('Delta: ' + delta)
 
   // If the data is to old do nothing.
   if (delta > this.timeout) {
     return
   }
 
-  if (this.warn != null && (now > this.warn) )
-  {
+  if (this.warn != null && (now > this.warn)) {
     this.warn_callback()
   }
 
   // Calculate current value
   var current = this.value + (this.rate * delta)
-  var interpolationTime = now
-
+  // var interpolationTime = now
 
   // Wait if prevous calculations overshoot the current and the goback setting is false.
   if (this.goback === false && current < this.current) {
@@ -115,7 +77,6 @@ DeadReckoning.prototype.reckon = function () {
   dic[this.valueProperty] = current
   dic[this.rateProperty] = this.rate
 
-
   this.callback(this.topic, dic)
 
   // Calculate next update.
@@ -131,16 +92,17 @@ DeadReckoning.prototype.reckon = function () {
     return
   }
 
-  if (wait < (1/30))
-    wait = 1/30
+  if (wait < (1 / 30)) {
+    wait = 1 / 30
+  }
 
-  console.log("Wait: " + wait);
+  console.log('Wait: ' + wait)
 
   this.timer = setTimeout(function (dr) { dr.reckon() }, wait * 1000, this)
 }
 
 DeadReckoning.prototype.mqtt = function (topic, payload) {
-  var newdata
+  // var newdata
 
   // Avoid looping messages
   if (topic === this.resultTopic) {
@@ -167,8 +129,7 @@ DeadReckoning.prototype.mqtt = function (topic, payload) {
   this.reckon()
 }
 
-DeadReckoning.prototype.update = function (timestamp,rate,value) {
-
+DeadReckoning.prototype.update = function (timestamp, rate, value) {
   // All parameters read save for later.
   this.value = value
   this.rate = rate
