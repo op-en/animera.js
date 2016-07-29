@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- inject:widgetutils:js -->
+  <!-- inject:animerawidget:js -->
   <!-- endinject -->
   <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
 </head>
@@ -9,7 +9,7 @@
   <div id="outer">
     <svg version="1.1" id="op-en_solarspinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%"
     viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve" >
-    <g id="sun" style="transform-origin: 50% 50%;" mqtt='bind_topic_to_rotation("www/rotation2",true,null,[100,20000],[0,0.12],true);'>
+    <g id="sun" style="transform-origin: center;">
       <circle id="disc" fill="#FBB03B" stroke="#000000" stroke-width="3" stroke-miterlimit="10" cx="50.6" cy="49" r="22"/>
       <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="8" y1="49.8" x2="25" y2="49.8"/>
       <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="76" y1="48.8" x2="92" y2="48.8"/>
@@ -38,20 +38,21 @@ function resize() {
   document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
 }
 resize();
+AnimeraWidget.init({
+  server: 'http://op-en.se:5000',
+  topic: 'test/topic1',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [0, 0.12],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
 
-widgetutils.init().then(function (datahub) {
-  console.log(widgetutils.paramArray);
-  var server = widgetutils.paramArray["server"];
-  var topic = widgetutils.paramArray["topic"];
-  var subproperty = widgetutils.paramArray["subproperty"];
-  var max = widgetutils.paramArray["max"];
-  var decimals = widgetutils.paramArray["decimals"];
-
-  var appserver = datahub.getdatasource("op-en_appserver",server);
-
-  //Bind text and animation to data.
-  appserver.bind_topic_to_html(document.getElementById("value"),topic,subproperty," W",decimals);
-  appserver.bind_topic_to_rotation(document.getElementById("sun"), topic,true,subproperty,[0,max],[0,0.12],true);
+  controller.bindTopicToHtml(document.getElementById("value"), settings)
+  controller.bindTopicToRotation(document.getElementById("sun"), settings)
 })
 </script>
 <style>

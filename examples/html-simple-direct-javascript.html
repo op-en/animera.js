@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+    <script src="/assets/animera.js"></script>
+  </head>
+  <body>
+    <p>
+      The value below will be updated with a value from the mqtt broker.
+    </p>
+    <p>
+      Here we use javascript directly to do the same thing as in the autobind example.
+    </p>
+    <div id="value">This value will be replaced with data sent to test/topic1 on the mqtt broaker at op-en.se</div>
+    <script>
+     Animera.ready().then(() => {
+       const controller = Animera.getController('http://op-en.se:5000')
+
+       controller.bindTopicToHtml(document.getElementById('value'), {
+         topic: 'test/topic1',
+         subproperty: 'time',
+         unit: ' some unit'
+       })
+     })
+    </script>
+</body>

@@ -3,8 +3,8 @@ module.exports.getConfig = function (type) {
 
   var config = {
     entry: {
-      animera: './src/index.js',
-      widgetutils: './src/widgetutils.js'
+      animera: './src/Animera.js',
+      animeraWidget: './src/AnimeraWidget.js'
     },
     output: {
       path: __dirname,
