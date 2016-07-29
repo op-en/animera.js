@@ -20,13 +20,18 @@ const webpackConfig = require('./webpack.config.js').getConfig(environment)
 
 const dist = 'dist/'
 const widget = dist + 'widgets/'
+const animeraPackage = require('./package.json')
+const animeraPath = 'https://github.com/op-en/animera.js/releases/download/v' + animeraPackage.version + '/animera.js'
 
 gulp.task('scripts', function (cb) {
+  if (isProduction) {
+    console.log('Production path to animera.js:' + animeraPath)
+  }
   pump([
     gulp.src([webpackConfig.entry.animera, webpackConfig.entry.animeraWidget]),
     named(),
     webpackStream(webpackConfig),
-    replace('<%= animeraPath %>', (isProduction ? 'https://github.com/op-en/animera.js/releases/download/v1.0.1/animera.js' : 'http://localhost:8080/assets/animera.js')),
+    replace('<%= animeraPath %>', (isProduction ? animeraPath : 'http://localhost:8080/assets/animera.js')),
     isProduction ? uglify() : util.noop(),
     gulp.dest(dist),
     size({ title: 'js' })
