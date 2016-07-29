@@ -31,6 +31,14 @@ Animera.prototype.getController = function (url, sourcetype) {
   return controller
 }
 
+Animera.prototype.ready = function () {
+  return new Promise((resolve, reject) => {
+    document.addEventListener('DOMContentLoaded', function (event) {
+      resolve()
+    })
+  })
+}
+
 // ------- START OF THE ANIMERA SCRIPT ---------
 
 // Find top most window and tie ourselves to the global variable 'Animera'
