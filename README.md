@@ -1,7 +1,68 @@
 # Animera.js
-This is a javascript framework for visualising realtime data from MQTT via an socket.io bridge.
+This is a javascript framework for visualising realtime data from MQTT via a socket.io bridge.
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
+## Usage
+
+TL;DR; see examples folder!
+
+Animera.js standardizes how graphical elements on your website connect to a datasource and animate in response to real time data. We call any element that responds to real time data (where it be a part of the element or the whole) an `animation`.
+
+Animera.js makes it easy to create any number of animations on your website and have them display in a reliable and performant way.
+
+We also use the concept of a `widget`, which is an html (sub)document that can be embedded on your page. A widget typically contains multiple animations, but is treated as one entity/element in your main html document.
+
+### Autobind animations
+
+For details, see `examples/autobind.html`.
+
+If we have an animation in the form of a svg document, we can embed it in our main html document, and use the autobind feature.
+
+This makes Animera.js search the entire DOM-tree for elements that have the non-standard attribute `animera`. For example, if we look in the fan.svg animation, we see the following:
+
+```html
+<g id="fan" style="transform-origin: center;" animera="bindTopicToRotation?inputRange=[0,10]&amp;outputRange=[0,1]&amp;clamp=true">
+```
+
+When animera.js finds this attribute during the document search, it will see that the animation requests the method `bindTopicToRotation`. with a number of default arguments:
+
+```
+inputRange: [0, 10]
+outputRange: [0, 1]
+clamp: true
+```
+
+Input range is the expected range of the input data, outputRange is the result after linear transformation, and clamp defines if the animation should have a "ceiling" where it can't go any faster.
+
+If we want to embed this in a document, we can do so with the object tag, like this:
+
+```html
+<object style="width:300px;height:350px;" data="../animations/hairdryer.svg?topic=test/topic1&amp;inputRange=[0,1]&amp;subproperty=power"></object>
+```
+
+Then we need to include the Animera.js library in the header of our html document.
+
+```html
+<script src="/assets/animera.js" data-autobind="http://op-en.se:5000"></script>
+```
+
+The `data-autobind` attribute states what server we want the animations to get their data from.
+
+### Widget animations
+
+Embedding a widget is a simple as creating an object tag with the widget document as source:
+
+```html
+<object data="../dist/widgets/widget-sun.html?topic=test/topic1&amp;max=1"></object>
+```
+Settings for the animations can be set in 3 different levels:
+
+- Inside animation
+- Inside widget
+- In embedding object tag.
+
+Each level overrides the preceding one.
 
 ## Development
 
