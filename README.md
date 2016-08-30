@@ -49,7 +49,7 @@ Then we need to include the Animera.js library in the header of our html documen
 
 The `data-autobind` attribute states what server we want the animations to get their data from.
 
-### Widget animations
+### Widgets
 
 Embedding a widget is a simple as creating an object tag with the widget document as source:
 
@@ -63,6 +63,14 @@ Settings for the animations can be set in 3 different levels:
 - In embedding object tag.
 
 Each level overrides the preceding one.
+
+Each widget contains a small script that automatically downloads animera.js and runs it, so there is no need to include it in the header of the main html document.
+
+If you have multiple widgets in the same document, only the first will download animera.js, and they will all share the same javascript object.
+
+##### Prefetched library
+
+If you want to improve initial performance slightly, you can include Animera.js in the header of your document.
 
 ## Development
 
