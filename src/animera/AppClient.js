@@ -85,7 +85,7 @@ AppClient.prototype.recieve = function (msg) {
         handlers = this.appclient.subscribers[topic]
 
         var arrayLength = handlers.length
-        
+
         for (i = 0; i < arrayLength; i++) {
           handlers[i](msg.topic, msg.payload)
         }
@@ -192,9 +192,10 @@ AppClient.prototype.subscribe_to_subproperty = function (topic, subproperty, han
 // Topic is the mqtt topic
 // element is the id of an html element.
 // If mqtt data is Json the optional subproperty can be used to get a specific property of the data.
-AppClient.prototype.bind_topic_to_html = function (element, topic, subproperty, unit) {
+AppClient.prototype.bind_topic_to_html = function (element, topic, subproperty, unit,decimals) {
   if (typeof (subproperty) === 'undefined') subproperty = null
   if (typeof (unit) === 'undefined') unit = ''
+  if (typeof (decimals) === 'undefined') decimals = null
   if (typeof element === 'string' || element instanceof String) {
     element = document.getElementById(element)
   }
@@ -208,7 +209,9 @@ AppClient.prototype.bind_topic_to_html = function (element, topic, subproperty, 
 
       data = payload[subproperty]
 
-      console.log(data)
+      if (typeof data === 'number' && decimals !== null) data = data.toFixed(decimals)
+
+      //console.log(data)
     } else {
       data = payload
     }
