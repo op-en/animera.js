@@ -2,7 +2,7 @@
 var widgetutils = module.exports = {}
 
 widgetutils.parseparams = function (paramArray) {
-  paramArray = paramArray || {'server': 'http://op-en.se:5000', 'topic': 'test/topic1', 'subproperty': null, 'max': 10000}
+  paramArray = paramArray || {'server': 'https://op-en.se', 'topic': 'test/topic1', 'subproperty': null, 'max': 10000, decimals: null}
 
   var href = document.defaultView.location.href
 
