@@ -37,10 +37,10 @@
     }
 
     #back_circle {
-      width: 100%;
-      height: 58%;
-      top: -27%;
-      left: 0.6%;
+        width: 100%;
+        height: 100%;
+        top: -49%;
+        left: 0%;
     }
 
     #front_circle {
@@ -75,7 +75,7 @@
     #unit {
       position: absolute;
       width: 100%;
-      top: 57%;
+      top: 56%;
       font-family: open-sans, sans-serif;
       font-weight: 400;
       font-size: 45pt;
@@ -90,7 +90,7 @@
     #value {
       position: absolute;
       width: 100%;
-      top: 39%;
+      top: 33%;
       font-family: open-sans, sans-serif;
       font-size: 80pt;
       font-weight: 600;
@@ -115,14 +115,14 @@
     }
 
     #pad {
-      position: absolute;
-      left: 3%;
-      width: 47%;
-      height: 90%;
-      border-radius: 50%;
-      box-shadow: rgba(0, 0, 0, 0.360784) 0px 0px 0.5em 0.2em;
-      background-color: rgb(255, 255, 255);
-      background-size: 100% 100%;
+        position: absolute;
+        left: 6%;
+        width: 90%;
+        height: 100%;
+        border-radius: 50%;
+        box-shadow: rgba(0, 0, 0, 0.360784) 0px 0px 0.8em 0.5em;
+        background-color: rgb(255, 255, 255);
+        background-size: 100% 100%;
     }
 
   </style>
@@ -132,14 +132,14 @@
     var scale = flexcontainer.clientHeight < flexcontainer.clientWidth ? flexcontainer.clientHeight : flexcontainer.clientWidth
     document.getElementById("container").style.height = scale * 0.8 + "px"
     document.getElementById("container").style.width = scale * 0.8 + "px"
-    document.getElementById("value").style.fontSize = scale * 0.8 / 8 + "pt";
-    document.getElementById("unit").style.fontSize = scale * 0.8 / 14 + "pt";
-    document.getElementById("back_circle").style.boxShadow = "0 0 " + scale / 5 + "px #888888"
+    document.getElementById("value").style.fontSize = scale * 0.8 / 6 + "pt";
+    document.getElementById("unit").style.fontSize = scale * 0.8 / 12 + "pt";
+    document.getElementById("back_circle").style.boxShadow = "0 0 " + scale / 3 + "px #888888"
   }
   resize()
   window.onresize = resize
   AnimeraWidget.init({
-    server: 'http://op-en.se:5000',
+    server: 'https://op-en.se',
     topic: 'test/topic1',
     subproperty: "energy",
     max: 100000,
