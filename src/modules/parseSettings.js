@@ -24,7 +24,10 @@ module.exports = function (href, defaults) {
         } else if (value === 'true' || value === 'false') {
           // parse boolean strings to true booleans
           value = (value === 'true')
+        } else if (value.substr(0, 1) == '\"' && value.substr(value.length - 1) == '\"') {
+          value = value.substr(1,value.length - 2)
         }
+
       } catch (e) {
         console.warn('Failed to parse setting, skipping ' + name)
         console.error(e)

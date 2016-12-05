@@ -3,6 +3,7 @@ var DeadReckoning = require('./DeadReckoning')
 
 const parseSettings = require('./parseSettings')
 
+
 var Controller = module.exports = function (datasource) {
   this.datasource = datasource
   this.animations = []
@@ -25,6 +26,53 @@ var Controller = module.exports = function (datasource) {
   }
   window.requestAnimationFrame(animationLoop)
 }
+
+// Add a connection to set an text element to incomming MQTT data.
+// Topic is the mqtt topic
+// element is the id of an html element.
+// If mqtt data is Json the optional subproperty can be used to get a specific property of the data.
+Controller.prototype.bindTopicToCallback = function (callback, settings) {
+  var subproperty = settings.subproperty || null
+  var topic = settings.topic || ''
+  var decimals = settings.decimals || null
+
+
+  this.datasource.subscribe(topic, function (topic, payload) {
+    var data
+    if (subproperty != null) {
+      try {
+        payload = JSON.parse(payload)
+      } catch (e) {
+        console.error(e)
+        return
+      }
+
+      data = payload[subproperty]
+
+      if (this.debug) {
+        console.log(data)
+        console.log(payload)
+      }
+    } else {
+      data = payload
+    }
+
+    // Is the decimals argument set.
+    if (typeof (decimals) !== 'undefined') {
+      // See if number
+      var value = parseFloat(data)
+
+      // If it is adjust the number of decimals.
+      if (!isNaN(value)) {
+        data = value.toFixed(decimals)
+      }
+    }
+    // Only if string.
+    callback(data);
+  })
+}
+
+
 
 // Add a connection to set an text element to incomming MQTT data.
 // Topic is the mqtt topic
