@@ -65,7 +65,12 @@ AnimeraWidget.init({
   //controller.bindTopicToHtml(document.getElementById("value"), settings)
   console.log("check1!")
   controller.bindTopicToCallback( function (data) {
-        console.log(data, settings.cues[data],pop.currentTime())
+        //console.log(data, settings.cues[data],pop.currentTime())
+
+        if (data > settings.cues.length -2) {
+          data = settings.cues.length -2
+        }
+
 
         var cue = settings.cues[data]
         window.value = data
