@@ -20,7 +20,11 @@ module.exports = function (href, defaults) {
           // remove the brackets, split by comma and parse floats
           value = value.substr(value.indexOf('[') + 1, value.indexOf(']') - 1)
           const arrayValues = value.split(',')
-          value = [parseFloat(arrayValues[0]), parseFloat(arrayValues[1])]
+          value = []
+
+          for (let arrayValue of arrayValues) {
+            value.push(parseFloat(arrayValue))
+          }
         } else if (value === 'true' || value === 'false') {
           // parse boolean strings to true booleans
           value = (value === 'true')
