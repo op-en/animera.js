@@ -9,28 +9,53 @@
 </head>
 
 <body onresize="resize()">
-  <div id="outer">
-
-  <div id="video" style="width:100%;height:100%; border:solid;">
-
+  <div id="outer" style="border: solid red; height: 100vh;">
+    <div id="video" style="width:100%;height:100%;"></div>
+    <div id="value" class="text" onresize="text_resize()">   -    W</div>
   </div>
 
-  <div id="value" class="text" onresize="text_resize()">   -    W</div>
-</div>
 <script>
 
 
 
 //If running stand alone.
 if (window == window.parent) {
-  document.getElementById("outer").style.width = "40%";
-  document.getElementById("outer").style["padding-left"] = "30%";
+  document.getElementById("outer").style.width = "100%";
+  document.getElementById("outer").style["padding-left"] = "0%";
+  document.getElementById("outer").style.height = "100vh";
+  document.getElementById("outer").style.overflow = "hidden";
   //document.getElementById("outer").style.height = "100vh";
 }
 
 function resize() {
-  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
-  document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+  //document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  var textsize = document.getElementById("value").offsetWidth / 12
+  document.getElementById("value").style.fontSize =  textsize + "pt"
+  //document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+  if (typeof window.pop !== 'undefined') {
+    var pos =  window.pop.position()
+    var black = 0
+    var ratio = 16/10
+    var height = pos.height
+    var x = 0.28
+
+
+    if (   (pos.height * ratio)  > pos.width) {
+      //console.log("black boarders top bottom")
+      height = pos.width / ratio
+      black = pos.height - height;
+    }
+
+
+
+    var value_top = ( (height * x) - (textsize/2) + (black/2)) - pos.height
+
+    document.getElementById("value").style.top = value_top + "px"
+
+    console.log(value_top + "px")
+
+  }
+
 }
 resize();
 AnimeraWidget.init({
@@ -95,15 +120,18 @@ AnimeraWidget.init({
 })
 </script>
 <style>
+
+
+
   .text {
     background-color: none;
     font-size: 18pt;
     font-family: 'Palanquin Dark', sans-serif;
     position: relative;
     left: 0%;
-    top: -37%;
+    top: -70%;
     width: 100%;
-    height: 40%;
+    height: 20%;
     text-align: center;
     z-index:10;
     color:white;
@@ -114,6 +142,10 @@ AnimeraWidget.init({
     border: 3px solid blue;
     border-color: black;
 
+  }
+
+  .ytp-watermark {
+    display: none;
   }
 </style>
 </body>
