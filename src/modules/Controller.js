@@ -144,6 +144,44 @@ Controller.prototype.bind_topic_to_style = function (element, topic, style, subp
   })
 }
 
+Controller.prototype.bindTopicToHeight = function (element, settings) {
+  var subproperty = settings.subproperty || null
+  var topic = settings.topic || ''
+  var max = settings.max || 1
+  var min = settings.min || 0
+
+  if (typeof element === 'string' || element instanceof String) {
+    element = document.getElementById(element)
+  }
+
+  this.datasource.subscribe(settings.topic, function (topic, payload) {
+    var data
+    if (subproperty != null) {
+      payload = JSON.parse(payload)
+      data = payload[subproperty]
+    } else {
+      data = payload
+    }
+
+    if (data > settings.max) {
+      data = settings.max
+    }
+
+    if (data < settings.min) {
+      data = settings.min
+    }
+
+
+
+    var scale = (data - settings.min) / (settings.max - settings.min)
+
+    //console.log([scale,data,settings.min,settings.max])
+
+    // Only if string.
+    element['style']['transform'] = 'scaleY(' + scale + ')'
+  })
+}
+
 Controller.prototype.bindTopicToRotation = function (element, settings) {
   var relative = settings.relative
   if (relative === undefined) {
