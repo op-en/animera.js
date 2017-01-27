@@ -3,6 +3,7 @@ var io = require('socket.io-client')
 var AppClient = module.exports = function (url) {
   this.io = io.connect(url)
   this.io.appclient = this
+  this.appclient = this
   this.connected = false
   this.subscribers = {}
   this.retention = {}
