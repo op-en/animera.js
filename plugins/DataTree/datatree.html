@@ -1,0 +1,73 @@
+<html>
+
+<head>
+<link rel="stylesheet" href="dist/themes/default/style.min.css" />
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+
+  <script src="dist/jstree.min.js"></script>
+</head>
+  <body>
+    <div id="jstree_demo_div" style="width:300px; height:400px; border: 1px black solid;"></div>
+</body>
+
+
+<style>
+
+ .jstree-dot {
+  background: url("icons.png") 0px 0px no-repeat;
+
+  }
+
+
+  .jstree-default .jstree-new {
+    background: url("icons.png") -3px -3px no-repeat;
+  }
+
+  .jstree-default-small .jstree-new {
+    background: url("dist/themes/default/32px.png") -0px -0px no-repeat;
+  }
+
+  .jstree-default-large .jstree-new {
+    background: url("dist/themes/default/32px.png") -96px -64px no-repeat;
+  }
+
+  .jstree-default-responsive .jstree-new {
+    background: url("dist/themes/default/40px.png") 0 -160px no-repeat;
+    background-size: 120px 240px;
+  }
+
+
+
+</style>
+
+
+<script>
+
+
+$('#jstree_demo_div').jstree({ 'core' : {
+    'data' : [
+
+       { "id" : "op-en.se", "parent" : "#", "text" : "op-en.se" },
+       { "id" : "testsites", "parent" : "op-en.se", "text" : "testsites" },
+       { "id" : "test", "parent" : "op-en.se", "text" : "test" },
+       { "id" : "test/signalA", "parent" : "test", "text" : "signalA","icon"  : "jstree-file" },
+       { "id" : "test/signalA:time", "parent" : "test/signalA", "text" : "time","icon"  : "jstree-file" },
+       { "id" : "test/signalA:time:value", "parent" : "test/signalA:time", "text" : "143243230","icon"  : "jstree-file" },
+       { "id" : "power", "parent" : "test/signalA", "text" : "power","icon"  : "jstree-file" },
+       { "id" : "power:value", "parent" : "power", "text" : "342","icon"  : "jstree-new" },
+       { "id" : "energy", "parent" : "test/signalA", "text" : "energy","icon"  : "jstree-file" },
+       { "id" : "signalB", "parent" : "test", "text" : "signalB","icon"  : "jstree-file" },
+    ]
+} });
+
+
+</script>
+
+<div class="jstree-new" style="width:320; height:320; border:solid black 1px;"></div>
+
+
+
+
+</html>
