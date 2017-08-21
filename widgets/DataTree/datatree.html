@@ -5,6 +5,7 @@
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
 
   <script src="dist/jstree.min.js"></script>
 </head>
@@ -17,7 +18,6 @@
 
  .jstree-dot {
   background: url("icons.png") 0px 0px no-repeat;
-
   }
 
 
@@ -44,6 +44,31 @@
 
 
 <script>
+  var socket = io.connect('http://op-en.se:5000');
+  socket.on('connect', function () {
+    socket.on('mqtt', function (msg) {
+      console.log(msg.topic+' '+msg.payload);
+    });
+    socket.on('influx', function (msg) {
+      console.log(msg.topic+' '+msg.payload);
+    });
+    socket.on('request', function (msg) {
+      console.log(msg);
+    });
+    socket.on('requested', function (msg) {
+      console.log(msg);
+    });
+    socket.on('topics_list', function (msg) {
+      //console.log("topics_list:")
+      console.log(msg.payload);
+
+    });
+
+    socket.emit('subscribe',{topic:'test/signalA'});
+    socket.emit("list_topics",{"topic":"#"});
+  });
+
+
 
 
 $('#jstree_demo_div').jstree({ 'core' : {
