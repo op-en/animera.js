@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <!-- inject:animerawidget:js -->
+    <!-- endinject -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+
+  </head>
+
+  <body>
+    <div style="height:300px; width:200px;" trala </div>
+
+      <div id="outer">
+      <div id="value" class="text" onresize="text_resize()">   -    W</div>
+      </div>
+
+    <canvas id="myChart" width="400" height="400"></canvas>
+
+  </body>
+
+<script>
+
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function addDataPoint(settings, time, data) {
+
+  console.log(settings.subproperty);
+  console.log(payload[settings.subproperty]);
+  console.log(payload["time"]);
+
+}
+
+
+function handleData (callback, settings) {
+  var subproperty = settings.subproperty || null
+  var topic = settings.topic || ''
+  var decimals = settings.decimals || null
+
+
+  this.datasource.subscribe(topic, function (topic, payload) {
+    var data
+    if (subproperty != null) {
+      try {
+        payload = JSON.parse(payload)
+      } catch (e) {
+        console.error(e)
+        return
+      }
+
+      data = payload[subproperty]
+
+      if (this.debug) {
+        console.log(data)
+        console.log(payload)
+      }
+    } else {
+      data = payload
+    }
+
+    // Is the decimals argument set.
+    if (typeof (decimals) !== 'undefined') {
+      // See if number
+      var value = parseFloat(data)
+
+      // If it is adjust the number of decimals.
+      if (!isNaN(value)) {
+        data = value.toFixed(decimals)
+      }
+    }
+    // Only if string.
+    addDataPoint(settings, payload.time, data);
+  })
+}
+
+
+
+function initGraph (settings) {
+
+  console.log("initGraph");
+
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+          datasets: [{
+              label: '# of Votes',
+              data: [12, 19, 3, 5, 2, 3],
+              backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero:true
+                  }
+              }]
+          }
+      }
+  });
+
+
+
+}
+
+
+function resize() {
+  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+}
+
+resize();
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/signalA',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  timerange: [1503391208, 1503392208],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+
+  initGraph(settings);
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
+  //controller.bindTopicToCallback(addDataPoint, settings);
+
+  controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+
+})
+</script>
+
+
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -22%;
+    width: 100%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+</style>
+
+</html>
