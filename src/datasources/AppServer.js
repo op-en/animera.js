@@ -9,9 +9,14 @@ var AppClient = module.exports = function (url) {
   this.retention = {}
   this.sourcetype = 'appserver'
   this.source_address = url
+  this.requests = {}
 
   // Handle incomming MQTT messages
   this.io.on('mqtt', this.recieve)
+
+  this.io.on('requested', function (msg) {
+    console.log(msg.topic+' '+msg.payload);
+  });
 
   // Handle connection.
   this.io.on('connect', function () {
@@ -85,6 +90,8 @@ AppClient.prototype.publish = function (topic, payload, locally) {
   }
 }
 
+
+
 // Add a function that handles incomming MQTT data
 AppClient.prototype.subscribe = function (topic, handler) {
   this.lock++
@@ -131,4 +138,14 @@ AppClient.prototype.subscribeToSubproperty = function (topic, subproperty, handl
     // Only if string.
     handler(topic, data)
   })
+}
+
+//Get last data.
+AppClient.prototype.lastmessage = function (topic, handler) {
+  // Subscribe to data.
+  if (this.connected) {
+    console.log('Requesting ' + topic)
+    this.io.emit('influx', {'topic': topic,limit:1})
+  }
+
 }

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+</head>
+<body onresize="resize()">
+  <div id="outer">
+
+  </div>
+</body>
+
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+
+}
+resize();
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/topic1',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [0, 0.12],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
+
+
+})
+</script>
+
+
+
+</html>
+
+
+//============================================================
+
+
+<html>
+
+<head>
+<link rel="stylesheet" href="dist/themes/default/style.min.css" />
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+
+  <script src="dist/jstree.min.js"></script>
+</head>
+  <body>
+    <div id="jstree_demo_div" style="width:300px; height:400px; border: 1px black solid;"></div>
+</body>
+
+
+<style>
+
+ .jstree-dot {
+  background: url("icons.png") 0px 0px no-repeat;
+  }
+
+
+  .jstree-default .jstree-new {
+    background: url("icons.png") -3px -3px no-repeat;
+  }
+
+  .jstree-default-small .jstree-new {
+    background: url("dist/themes/default/32px.png") -0px -0px no-repeat;
+  }
+
+  .jstree-default-large .jstree-new {
+    background: url("dist/themes/default/32px.png") -96px -64px no-repeat;
+  }
+
+  .jstree-default-responsive .jstree-new {
+    background: url("dist/themes/default/40px.png") 0 -160px no-repeat;
+    background-size: 120px 240px;
+  }
+
+
+
+</style>
+
+
+<script>
+  var serverurl = 'http://op-en.se:5000'
+
+  var parts = serverurl.split("//");
+  var servername = parts[parts.length-1]
+
+
+  var socket = io.connect(serverurl);
+  socket.on('connect', function () {
+    socket.on('mqtt', function (msg) {
+      console.log(msg.topic+' '+msg.payload);
+    });
+    socket.on('influx', function (msg) {
+      console.log(msg.topic+' '+msg.payload);
+    });
+    socket.on('request', function (msg) {
+      console.log(msg);
+    });
+    socket.on('requested', function (msg) {
+      console.log(msg);
+    });
+    socket.on('topics_list', function (msg) {
+      //console.log("topics_list:")
+      console.log(msg.payload);
+
+      var tree = CreateTree(msg.payload);
+      console.log(tree);
+
+      // tree = [{id: "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy/1.8.1", parent: "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy", text: "1.8.1"},
+      //         {id: "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy", parent: "Testsites/Bjorklinge/Electricity/test", text: "ElectricityEnergy"},
+      //         {id: "Testsites/Bjorklinge/Electricity/test", parent: "Testsites/Bjorklinge/Electricity", text: "test"},
+      //         {id: "Testsites/Bjorklinge/Electricity", parent: "Testsites/Bjorklinge", text: "Electricity"},
+      //         {id: "Testsites/Bjorklinge", parent: "Testsites", text: "Bjorklinge"},
+      //         {id: "Testsites", parent: "op-en.se:5000", text: "Testsites"},
+      //         {id: "op-en.se:5000", text: "op-en.se:5000"}];
+      //
+      // tree = [{"id": "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy/1.8.1", "parent": "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy", "text": "1.8.1"},
+      //         {"id": "Testsites/Bjorklinge/Electricity/test/ElectricityEnergy", "parent": "Testsites/Bjorklinge/Electricity/test", "text": "ElectricityEnergy"},
+      //         {"id": "Testsites/Bjorklinge/Electricity/test", "parent": "Testsites/Bjorklinge/Electricity", "text": "test"},
+      //         {"id": "Testsites/Bjorklinge/Electricity", "parent": "Testsites/Bjorklinge", "text": "Electricity"},
+      //         {"id": "Testsites/Bjorklinge", "parent": "Testsites", "text": "Bjorklinge"},
+      //         {"id": "Testsites", "text": "Testsites", "parent":"#"}];
+      //
+      // tree = tree.reverse();
+
+//      tree = [
+//{ "id" : "ajson1", "parent" : "#", "text" : "Simple root node" },
+//{ "id" : "ajson2", "parent" : "#", "text" : "Root node 2" },
+//{ "id" : "ajson3", "parent" : "ajson2", "text" : "Child 1" },
+//{ "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
+//];
+
+
+      $('#jstree_demo_div').jstree({ 'core' : {
+      'data' : tree
+      }});
+
+      $("#jstree_demo_div").on("open_node.jstree", function (e, data) {
+        console.log(data.node.children);
+
+        //Has propterties
+        for (i=0;i < data.node.children.length;i++) {
+          if (data.node.children[i].indexOf(":") != -1) {
+            break;
+          }
+          console.log("No propterties");
+          return;
+        }
+
+
+
+        socket.emit('subscribe',{topic:data.node.id});
+        console.log("Open node_id: " + data.node.id);
+
+
+      });
+
+
+      $("#jstree_demo_div").on("close_node.jstree", function (e, data) { console.log("Close node_id: " + data.node.id); });
+
+    });
+
+
+    socket.emit("list_topics",{"topic":"#"});
+  });
+
+function CreateTree(topics_list){
+
+  var tree = [];
+
+  var arrayLength = topics_list.length;
+  for (var i = 0; i < arrayLength; i++) {
+    tree = AddTopicToTree(topics_list[i][0],tree);
+  }
+
+  return tree;
+}
+
+function AddTopicToTree(topic,tree){
+
+  var subtree = [];
+
+  //console.log("Add subtree");
+
+  if ( !IsInTree(topic+":loading",tree)) {
+    subtree.push({"id": topic + ":loading","parent" :topic,"text" :"loading...","icon":"file"})
+  }
+
+  while(true) {
+    if (topic == "" || IsInTree(topic,tree) || IsInTree(topic,subtree) ){
+
+
+      break;
+    }
+
+    //console.log(topic);
+    //console.log(subtree);
+
+    var parent = FindParent(topic);
+    var name = topic.substring(parent.length).replace("/","");
+
+    if (topic == servername) {
+      parent = "#";
+      subtree.push({"id":topic,"parent" :parent,"text" :name})
+      break;
+    }
+    else if (parent == "" ) {
+      parent = servername;
+    }
+
+    subtree.push({"id":topic,"parent" :parent,"text" :name})
+    topic = parent;
+  }
+
+  subtree.reverse();
+  //console.log(subtree);
+  tree = tree.concat(subtree);
+
+  //console.log("tree");
+  //console.log(tree);
+
+  return tree;
+}
+
+function FindParent(name) {
+  var parts = name.split("/");
+  var lenghtLastpart = parts[parts.length-1].length;
+
+  parent = name.substring(0,name.length-lenghtLastpart-1);
+
+  return parent;
+}
+
+function IsInTree(str,tree){
+  var arrayLength = tree.length;
+
+  for (var i = 0; i < arrayLength; i++) {
+      if (str == tree[i].id)
+        return true;
+  }
+
+  return false;
+}
+
+
+</script>
+
+
+
+
+
+</html>
