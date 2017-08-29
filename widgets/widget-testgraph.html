@@ -31,53 +31,17 @@ if (window == window.parent) {
 
 function addDataPoint(settings, time, data) {
 
-  console.log(settings.subproperty);
-  console.log(payload[settings.subproperty]);
-  console.log(payload["time"]);
+  console.log("data: " + data);
+  console.log("time: " + time);
 
 }
 
 
-function handleData (callback, settings) {
-  var subproperty = settings.subproperty || null
-  var topic = settings.topic || ''
-  var decimals = settings.decimals || null
 
 
-  this.datasource.subscribe(topic, function (topic, payload) {
-    var data
-    if (subproperty != null) {
-      try {
-        payload = JSON.parse(payload)
-      } catch (e) {
-        console.error(e)
-        return
-      }
 
-      data = payload[subproperty]
 
-      if (this.debug) {
-        console.log(data)
-        console.log(payload)
-      }
-    } else {
-      data = payload
-    }
 
-    // Is the decimals argument set.
-    if (typeof (decimals) !== 'undefined') {
-      // See if number
-      var value = parseFloat(data)
-
-      // If it is adjust the number of decimals.
-      if (!isNaN(value)) {
-        data = value.toFixed(decimals)
-      }
-    }
-    // Only if string.
-    addDataPoint(settings, payload.time, data);
-  })
-}
 
 
 
@@ -155,7 +119,41 @@ AnimeraWidget.init({
   //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
   //controller.bindTopicToCallback(addDataPoint, settings);
 
-  controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+  //controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+  controller.datasource.subscribe(settings.topic, function (topic, payload) {
+    //console.log("debug test: " +  settings.subproprety);
+    var data
+    if (settings.subproperty != null) {
+      try {
+        payload = JSON.parse(payload)
+      } catch (e) {
+        console.error(e)
+        return
+      }
+
+      data = payload[settings.subproperty]
+
+      if (this.debug) {
+        console.log(data)
+        console.log(payload)
+      }
+    } else {
+      data = payload
+    }
+
+    // Is the decimals argument set.
+    if (typeof (decimals) !== 'undefined') {
+      // See if number
+      var value = parseFloat(data)
+
+      // If it is adjust the number of decimals.
+      if (!isNaN(value)) {
+        data = value.toFixed(decimals)
+      }
+    }
+    // Only if string.
+    addDataPoint(settings, payload.time, data);
+  })
 
 })
 </script>
