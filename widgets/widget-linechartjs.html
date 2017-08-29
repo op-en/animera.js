@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <!-- inject:animerawidget:js -->
+    <!-- endinject -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+      <div id="graphWrapper">
+        <canvas id="myLineChart" width="800" height="400"></canvas>
+      </div>
+
+  </body>
+
+<!-- STYLE CSS ETC################################ -->
+<style>
+
+  html {
+    font-family: 'Lato', sans-serif;
+    background-color: none;
+    font-weight:300;
+    text-align: center;
+    font-size: 18pt;
+    padding:80px;
+
+  }
+
+  .graphWrapper {
+    padding: 80px;
+    box-sizing: border-box;
+  }
+
+</style>
+
+
+<!-- SCRIPT LE COUDE ################################ -->
+<script>
+
+
+
+function initGraph (settings) {
+
+  console.log("initGraph");
+  //This is where we define the id of the chart container
+  var ctx = document.getElementById("myLineChart").getContext('2d');
+  myLineChartData = [0];
+  myLineChartLabels = [""];
+  myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: myLineChartLabels,
+        datasets: [{
+            label: settings.topic,
+            backgroundColor:settings.backgroundColor,
+            borderColor: settings.borderColor,
+            data: myLineChartData,
+        }]
+    },
+    options: {
+      scales: {
+            yAxes: [{
+                ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, values) {
+                        return  value + " " + settings.unit;
+                    }
+                }
+            }]
+        }
+
+    }
+    });
+
+}
+
+
+
+//this is the function which push data points into the array which draws/powers the graph.
+function addDataPoint(settings, time, data) {
+
+
+  var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+  d.setUTCSeconds(time);
+  var hourMinSecs = d.toLocaleString().substr(11, 9);
+
+  console.log(time);
+  //add data to the array of labels and datapoints and update the chart
+  myLineChartData.push(data);
+  myLineChartLabels.push(hourMinSecs);
+  myLineChart.update();
+
+  //addData(myLineChart, "time", mydata);
+}
+
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/signalA',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  timerange: [1503391208, 1503392208],
+  clamp: true,
+  decimals: 0,
+  backgroundColor: "rgb(50, 50, 50)",
+  borderColor: "rgb(50,50,50)"
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+
+  initGraph(settings);
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
+  //controller.bindTopicToCallback(addDataPoint, settings);
+
+  //controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+  controller.datasource.subscribe(settings.topic, function (topic, payload) {
+    //console.log("debug test: " +  settings.subproprety);
+    var data
+    if (settings.subproperty != null) {
+      try {
+        payload = JSON.parse(payload)
+      } catch (e) {
+        console.error(e)
+        return
+      }
+
+      data = payload[settings.subproperty]
+
+      if (this.debug) {
+        console.log(data)
+        console.log(payload)
+      }
+    } else {
+      data = payload
+    }
+
+    // Is the decimals argument set.
+    if (typeof (decimals) !== 'undefined') {
+      // See if number
+      var value = parseFloat(data)
+
+      // If it is adjust the number of decimals.
+      if (!isNaN(value)) {
+        data = value.toFixed(decimals)
+      }
+    }
+    // Only if string.
+    addDataPoint(settings, payload.time, data);
+  })
+
+})
+</script>
+
+</html>
