@@ -13,7 +13,6 @@
   <body>
 
       <div id="graphWrapper">
-        <center>Lovely Line Chart</center><br />
         <canvas id="myLineChart" width="800" height="400"></canvas>
       </div>
 
@@ -50,16 +49,16 @@ function initGraph (settings) {
   console.log("initGraph");
   //This is where we define the id of the chart container
   var ctx = document.getElementById("myLineChart").getContext('2d');
-  myLineChartData = [0,10];
-  myLineChartLabels = ["one", "two"];
+  myLineChartData = [0];
+  myLineChartLabels = [""];
   myLineChart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: myLineChartLabels,
         datasets: [{
-            label: "set1",
+            label: settings.topic,
             backgroundColor:settings.backgroundColor,
-            borderColor: 'rgb(255, 99, 132)',
+            borderColor: settings.borderColor,
             data: myLineChartData,
         }]
     },
@@ -88,7 +87,7 @@ function addDataPoint(settings, time, data) {
 
   var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
   d.setUTCSeconds(time);
-  var hourMinSecs = d.toLocaleString().substr(11, 8);
+  var hourMinSecs = d.toLocaleString().substr(11, 9);
 
   console.log(time);
   //add data to the array of labels and datapoints and update the chart
@@ -109,7 +108,8 @@ AnimeraWidget.init({
   timerange: [1503391208, 1503392208],
   clamp: true,
   decimals: 0,
-  backgroundColor: "rgb(255, 99, 132)",
+  backgroundColor: "rgb(50, 50, 50)",
+  borderColor: "rgb(50,50,50)"
 }).then(function (objects) {
   var settings = objects.settings;
   var controller = objects.animera.getController(settings.server)
