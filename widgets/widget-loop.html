@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+</head>
+<body onresize="resize()">
+  <div id="outer">
+    <svg id="svgloop" data-name="Lager 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 982.83 262.98">
+      <defs>
+      <style>.cls-1{fill:none;stroke:#000;stroke-miterlimit:10;stroke-width:10px;fill-rule:evenodd;}
+      </style>
+    </defs>
+    <title>loop</title>
+    <g id="loop">
+      <path class="cls-1"
+    d="M143,358s106,104,165,83,76-142,147-83,81,217,219,142,172-78,137-158-167-86-199-34S735,536,876,527s242-183,242-183"
+    transform="translate(-139.5 -269.36)"
+    stroke="#000"
+    stroke-width="4.3" fill="none" d="…"
+    stroke-dasharray="4.06 4.06"/>
+  </g>
+    </svg>
+  <div id="value" class="text" onresize="text_resize()">   -    W</div>
+</div>
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+}
+resize();
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/topic1',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [1000, 1],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bind_topic_to_style(document.getElementById("loop"), settings)
+  controller.bindTopicToCallback(function(data){ChangeSpeed(data,settings)},settings)
+
+
+})
+
+var path = document.querySelector('.cls-1');
+var length = path.getTotalLength();
+// Clear any previous transition
+path.style.transition = path.style.WebkitTransition =
+  'none';
+// Set up the starting positions
+//path.style.strokeDasharray = 2.0 + ' ' + 2.0;
+path.style.strokeDashoffset = length;
+// Trigger a layout so styles are calculated & the browser
+// picks up the starting position before animating
+path.getBoundingClientRect();
+// Define our transition
+//path.style.transition = path.style.WebkitTransition =  'stroke-dashoffset 2s ease-in-out';
+// Go!
+path.style.strokeDashoffset = '0';
+
+function ChangeSpeed(value, settings) {
+  //settings.outputRange[]
+  value = settings.speed/value
+//document.getElementById("svgloop").setCurrentTime(0)
+
+  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=value + "s"
+  //document.getElementsByClassName("cls-1")[0].style["animation-dasharray"]=value + "s"
+  console.log(value + "s")
+
+//Slowest: 1000
+//Fastest: 1
+
+}
+
+function ChangeSpeedDebug(value) {
+
+  //value = settings.speed/value
+
+  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=value + "s"
+  //document.getElementsByClassName("cls-1")[0].style["animation-dasharray"]=value + "s"
+  console.log(value + "s")
+}
+
+</script>
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -10%;
+    width: 100%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+  .cls-1 {
+    border-color: "#FFFE1C";
+    stroke-dasharray: 50;
+    /*i pixlar*/
+    animation-name: dash;
+    animation-duration: 1.5s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    animation-play-state: running;
+  }
+  @keyframes dash {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+</style>
+</body>
+<!-- http://localhost:8080/dist/widgets/widget-loop.html?topic=test/signalB -->
