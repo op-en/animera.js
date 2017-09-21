@@ -7,14 +7,14 @@
 </head>
 <body onresize="resize()">
   <div id="outer">
-    <svg id="svgloop" data-name="Lager 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 982.83 262.98">
+    <svg id="svgloop" data-name="Lager 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 982.83 300">
       <defs>
       <style>.cls-1{fill:none;stroke:#000;stroke-miterlimit:10;stroke-width:10px;fill-rule:evenodd;}
       </style>
     </defs>
     <title>loop</title>
     <g id="loop">
-      <path class="cls-1"
+      <path class="cls-1" id="flow"
     d="M143,358s106,104,165,83,76-142,147-83,81,217,219,142,172-78,137-158-167-86-199-34S735,536,876,527s242-183,242-183"
     transform="translate(-139.5 -269.36)"
     stroke="#000"
@@ -29,7 +29,8 @@
 if (window == window.parent) {
   document.getElementById("outer").style.width = "40%";
   document.getElementById("outer").style["padding-left"] = "30%";
-  //document.getElementById("outer").style.height = "100vh";
+  document.getElementById("outer").style["padding-top"] = "30%";
+  document.getElementById("outer").style.height = "100vh";
 }
 
 function resize() {
@@ -44,13 +45,16 @@ AnimeraWidget.init({
   subproperty: "power",
   max: 10000,
   unit: " W",
-  outputRange: [1000, 1],
+  outputRange: [0.1, 10],
+  color: "#000",
+  width: 6,
   clamp: true,
   decimals: 0
 }).then(function (objects) {
   var settings = objects.settings;
   var controller = objects.animera.getController(settings.server)
-
+  document.getElementById("flow").style["stroke-width"] = "" + settings["width"]
+  document.getElementById("flow").style["stroke"] = "" + settings.color
   controller.bindTopicToHtml(document.getElementById("value"), settings)
   //controller.bind_topic_to_style(document.getElementById("loop"), settings)
   controller.bindTopicToCallback(function(data){ChangeSpeed(data,settings)},settings)
@@ -76,12 +80,39 @@ path.style.strokeDashoffset = '0';
 
 function ChangeSpeed(value, settings) {
   //settings.outputRange[]
-  value = settings.speed/value
-//document.getElementById("svgloop").setCurrentTime(0)
+  var max=1
+  var min=0
+  var m,c,animationSpeed
 
-  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=value + "s"
+//document.getElementById("svgloop").setCurrentTime(0)
+  m=(settings.outputRange[1] - settings.outputRange[0]) /  settings.max
+  c= settings.outputRange[1]-m*settings.max
+  animationSpeed = m*value + c
+
+
+
+  if(settings.clamp== true) {
+    if(settings.outputRange[0] > settings.outputRange[1]) {
+       max = 0
+       min = 1
+    }
+    if (animationSpeed>settings.outputRange[max]) {
+        animationSpeed=settings.outputRange[max]
+    }
+    if (animationSpeed<settings.outputRange[min]) {
+        animationSpeed=settings.outputRange[min]
+    }
+
+  }
+
+  if(value==0) {
+    animationSpeed = 0;
+  }
+
+  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=1/animationSpeed + "s"
   //document.getElementsByClassName("cls-1")[0].style["animation-dasharray"]=value + "s"
-  console.log(value + "s")
+  console.log(animationSpeed + "s")
+  console.log(1/animationSpeed + "s")
 
 //Slowest: 1000
 //Fastest: 1
