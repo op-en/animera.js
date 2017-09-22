@@ -1,4 +1,5 @@
 var Rotation = require('./Rotation')
+var AnimationController = require('./AnimationController')
 var DeadReckoning = require('./DeadReckoning')
 
 const parseSettings = require('./parseSettings')
@@ -142,6 +143,57 @@ Controller.prototype.bind_topic_to_style = function (element, topic, style, subp
     // Only if string.
     element['style'][style] = '' + data
   })
+}
+
+Controller.prototype.animateStyle = function (element,style,formula, settings) {
+  var subproperty = settings.subproperty || null
+  var topic = settings.topic || ''
+  if (formula == null)
+    formula = "%value%"
+
+  if (typeof element === 'string' || element instanceof String) {
+    element = document.getElementById(element)
+  }
+
+  var SpeedControl = new AnimationController(element, style, formula)
+
+
+
+  this.bindTopicToCallback(function(value){
+
+    var max=1
+    var min=0
+    var m,c,animationSpeed
+
+  //document.getElementById("svgloop").setCurrentTime(0)
+    m=(settings.outputRange[1] - settings.outputRange[0]) /  settings.max
+    c= settings.outputRange[1]-m*settings.max
+    animationSpeed = m*value + c
+
+    if(settings.clamp== true) {
+      if(settings.outputRange[0] > settings.outputRange[1]) {
+         max = 0
+         min = 1
+      }
+      if (animationSpeed>settings.outputRange[max]) {
+          animationSpeed=settings.outputRange[max]
+      }
+      if (animationSpeed<settings.outputRange[min]) {
+          animationSpeed=settings.outputRange[min]
+      }
+
+    }
+
+    if(value==0) {
+      animationSpeed = 0;
+    }
+
+    SpeedControl.SetSpeed(animationSpeed)
+
+  },settings)
+
+  return SpeedControl;
+
 }
 
 Controller.prototype.bindTopicToHeight = function (element, settings) {
