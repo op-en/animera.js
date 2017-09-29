@@ -1,6 +1,8 @@
 var Rotation = require('./Rotation')
 var AnimationController = require('./AnimationController')
 var DeadReckoning = require('./DeadReckoning')
+var Timeseries = require('../Timeseries/TimeSeries')
+var Time = require('../Timeseries/Time')
 
 const parseSettings = require('./parseSettings')
 
@@ -9,6 +11,7 @@ var Controller = module.exports = function (datasource) {
   this.datasource = datasource
   this.animations = []
   this.debug = true
+  this.time = new Time()
 
   // Animation loop
   // Note: We are using requestAnimationFrame since it provides much better performance and efficiancy
@@ -306,6 +309,11 @@ Controller.prototype.bindTopicToHtmlWithDeadReckoning = function (element, setti
   this.datasource.subscribe(settings.topic, function (topic, payload) { deadreckoning.mqtt(topic, payload) })
 
   return deadreckoning
+}
+
+Controller.prototype.getDataSeriesBuffer = function (element, settings) {
+
+  return new Timeseries.DataSeriesBuffer(this.time)
 }
 
 Controller.prototype.autobind = function (bindDocument, objectData) {

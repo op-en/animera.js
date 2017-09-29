@@ -5,7 +5,9 @@ var AnimationController = module.exports = function (target, property, formula) 
   this.time = Date.now();
   this.value = 0.0
   this.speed = 0.0
-  this.timer = setInterval(this.animator,250,this)
+  this.update_period = 200
+  this.timer = setTimeout(this.animator,self.update_period,this)
+  this.accelerationtimer = null
   this.target = target
   this.property = property
 
@@ -15,7 +17,7 @@ var AnimationController = module.exports = function (target, property, formula) 
   }
 
   this.formula = formula
-  this.transition_duration = 20
+  this.transition_duration = 1
   this.transition = false
 
   this.SetTransition(true);
@@ -24,11 +26,14 @@ var AnimationController = module.exports = function (target, property, formula) 
 
   this.ManualUpate = null
 
-  this.GetSpeed = this.NoEase
+  this.GetSpeed = this.LinearEase
 
-  this.ease_duration = 2
+  this.acceleration = 30
+  this.dynamicforce = 1
   this.oldspeed = 0.0
   this.SpeedUpdate = 0
+  this.lastspeed = 0
+  this._lastease = 0
 
 }
 
@@ -38,32 +43,59 @@ AnimationController.prototype.animator = function(self,manual) {
 
   //var transition_duration = this.target.style["transition-duration"]
   self.Update(self)
-
+  //console.log(ping);
+  self.timer = setTimeout(self.animator,self.update_period,self)
 }
 
 AnimationController.prototype.NoEase = function() {
+  this.lastspeed = this.speed
   return this.speed
 }
 
 AnimationController.prototype.LinearEase = function() {
 
-  //console.log(this.speed,this.oldspeed,this.speedChange,this.ease_duration);
-  var change = this.speed - this.oldspeed
-  var delta = (Date.now()) - this.SpeedUpdate
-  var percent = delta/(this.ease_duration * 1000)
+  //Maintain and calculate a delta time between calls
+  var now = Date.now()
 
-  if (percent > 1)
-    percent = 1
 
-  console.log(change,delta,percent,this.oldspeed + change * percent);
 
-  return this.oldspeed + change * percent
+  if (this.lastspeed == this.speed) {
+      this._lastease = now
+    //  if (this.accelerationtimer != null) {
+    //    clearInterval(this.accelerationtimer)
+    //    this.accelerationtimer = null
+    //  }
+      return this.speed
+    }
+
+  var diff = this.speed - this.lastspeed
+
+  if (this._lastease == 0)
+    this._lastease = now
+  var delta = now - this._lastease
+  this._lastease = now
+
+  //Calculate speed change based on time and acceleration.
+  var speedChange = (delta * this.acceleration / 1000)
+
+  if (this.lastspeed > this.speed)
+      speedChange = speedChange * -1
+
+  speedChange = speedChange + (diff * this.dynamicforce * delta/1000)
+
+  var newspeed = this.lastspeed + speedChange
+
+  //Check if we passed the target speed and stop if we did.
+  if ((newspeed >= this.speed && this.speed > this.lastspeed) ||
+   (newspeed <= this.speed && this.speed < this.lastspeed)) {
+     newspeed = this.speed
+   }
+   //console.log(newspeed,speedChange,this.lastspeed,(delta * this.acceleration / 1000),this.speed,diff * this.dynamicforce,delta);
+  //console.log(newspeed-this.lastspeed,": ",newspeed,this.speed,this.lastspeed,speedChange,delta);
+  this.lastspeed = newspeed
+  return newspeed
 }
 
-AnimationController.prototype.ApplyEasing = function() {
-  this.easing = new Mass();
-  this.easing.target_speed = this.speed;
-}
 
 AnimationController.prototype.UpdateValue = function() {
   var now = Date.now()
@@ -71,7 +103,7 @@ AnimationController.prototype.UpdateValue = function() {
   var reset = false
   //Calculate the current position
   var deltatime = now - this.time;
-  var value = this.value + ((deltatime/1000) * this.GetSpeed())
+  var value = this.value + ((deltatime/1000) * this.lastspeed)
 
   //MAX value in firefox is 33554400
   if (value > 33554400) {
@@ -98,6 +130,7 @@ AnimationController.prototype.UpdateTarget = function() {
   }
 
   //Calculate and set the transition target.
+
   var transition_target = this.value + this.transition_duration * this.GetSpeed()
   this.target.style[this.property] = this.formula.replace("%value%",transition_target)
 }
@@ -160,9 +193,8 @@ AnimationController.prototype.SetSpeed = function(speed){
   this.UpdateValue()
   this.oldspeed = this.speed
   this.speed = speed
-
   this.SpeedUpdate = Date.now()
-
+  this.UpdateValue()
   this.UpdateTarget()
 
 }

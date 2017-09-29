@@ -40,7 +40,7 @@ resize();
 
 AnimeraWidget.init({
   server: 'https://op-en.se',
-  topic: 'test/topic1',
+  topic: 'test/signalA',
   subproperty: "power",
   max: 10000,
   unit: " W",
@@ -60,84 +60,19 @@ AnimeraWidget.init({
 
   var cntrl = controller.animateStyle("flow","stroke-dashoffset",null,settings)
 
+  //For debugging
+  window.loop = cntrl
+  window._controller = controller
 
-  window.cntrl = cntrl
-
-  //step = 200
-
-//  document.getElementById("flow").addEventListener("transitionend",
-//    function(ev){
-//      if (ev.propertyName != "stroke-dashoffset")
-//        return
-
-//      if (this.style["stroke-dashoffset"] == "")
-//        this.style["stroke-dashoffset"] = 0
-
-//      this.style["stroke-dashoffset"] = "" + (parseFloat(this.style["stroke-dashoffset"]) + step)
-
-      //console.log("Offset: " + this.style["stroke-dashoffset"]);
-
-  //  });
 
 })
 
 
 
 
-function ChangeSpeed(value, settings) {
-  //settings.outputRange[]
-  var max=1
-  var min=0
-  var m,c,animationSpeed
-
-//document.getElementById("svgloop").setCurrentTime(0)
-  m=(settings.outputRange[1] - settings.outputRange[0]) /  settings.max
-  c= settings.outputRange[1]-m*settings.max
-  animationSpeed = m*value + c
 
 
 
-  if(settings.clamp== true) {
-    if(settings.outputRange[0] > settings.outputRange[1]) {
-       max = 0
-       min = 1
-    }
-    if (animationSpeed>settings.outputRange[max]) {
-        animationSpeed=settings.outputRange[max]
-    }
-    if (animationSpeed<settings.outputRange[min]) {
-        animationSpeed=settings.outputRange[min]
-    }
-
-  }
-
-  if(value==0) {
-    animationSpeed = 0;
-  }
-
-  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=1/animationSpeed + "s"
-  //document.getElementsByClassName("cls-1")[0].style["animation-dasharray"]=value + "s"
-  console.log(animationSpeed + "s")
-  console.log(1/animationSpeed + "s")
-
-//Slowest: 1000
-//Fastest: 1
-
-}
-
-function SetOffset(offset){
-  document.getElementById("flow").style["stroke-dashoffset"] = "" + offset
-
-}
-
-function ChangeSpeedDebug(value) {
-
-  //value = settings.speed/value
-
-  document.getElementsByClassName("cls-1")[0].style["animation-duration"]=value + "s"
-  //document.getElementsByClassName("cls-1")[0].style["animation-dasharray"]=value + "s"
-  console.log(value + "s")
-}
 
 </script>
 <style>
