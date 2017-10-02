@@ -5,11 +5,16 @@ var AnimationController = module.exports = function (target, property, formula) 
   this.time = Date.now();
   this.value = 0.0
   this.speed = 0.0
-  this.update_period = 200
-  this.timer = setTimeout(this.animator,self.update_period,this)
+  this.update_period = 300
+  this.timer = setTimeout(this.animator,this.update_period,this)
   this.accelerationtimer = null
   this.target = target
   this.property = property
+
+//  window.onfocus = function() {
+//    this.Reset()
+//    console.log("Resetting animation!");
+//  }
 
   if (formula == undefined){
 
@@ -17,7 +22,7 @@ var AnimationController = module.exports = function (target, property, formula) 
   }
 
   this.formula = formula
-  this.transition_duration = 1
+  this.transition_duration = 10
   this.transition = false
 
   this.SetTransition(true);
@@ -44,7 +49,10 @@ AnimationController.prototype.animator = function(self,manual) {
   //var transition_duration = this.target.style["transition-duration"]
   self.Update(self)
   //console.log(ping);
-  self.timer = setTimeout(self.animator,self.update_period,self)
+  //if (!self.idle)
+    self.timer = setTimeout(self.animator,self.update_period,self)
+  //else
+  //  self.timer = setTimeout(self.animator,1000*self.transition_duration/2,self)
 }
 
 AnimationController.prototype.NoEase = function() {
@@ -65,8 +73,17 @@ AnimationController.prototype.LinearEase = function() {
     //    clearInterval(this.accelerationtimer)
     //    this.accelerationtimer = null
     //  }
+    //  if (!this.idle)
+    //    console.log("No acceleration!");
+
+      this.idle = true
       return this.speed
-    }
+  }
+
+//  if (this.idle)
+//    console.log("Accelerating!");
+  this.idle = false
+
 
   var diff = this.speed - this.lastspeed
 
@@ -102,8 +119,17 @@ AnimationController.prototype.UpdateValue = function() {
 
   var reset = false
   //Calculate the current position
-  var deltatime = now - this.time;
-  var value = this.value + ((deltatime/1000) * this.lastspeed)
+  var deltatime = (now - this.time)/1000;
+
+
+  var value = this.value + ((deltatime) * this.lastspeed)
+
+  if (deltatime > this.transition_duration){
+    console.log("Stalled timmer detected!");
+    deltatime = this.transition_duration
+    value = value % this.AnimationPeriod
+    reset = true
+  }
 
   //MAX value in firefox is 33554400
   if (value > 33554400) {
@@ -153,6 +179,8 @@ AnimationController.prototype.Update = function(){
   this.UpdateTarget(false)
 
 }
+
+
 
 AnimationController.prototype.SetTransition = function(state){
   if (state){

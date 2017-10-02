@@ -15,18 +15,29 @@ var Time = module.exports = function (now) {
 
 }
 
-Time.prototype.update = function(now) {
+Time.prototype.getTime = function(at) {
 
+  if (at === undefined)
+    at = (new Date).getTime()/1000;
 
-  now = (new Date).getTime()/1000;
-
-  var delta = now - this.update_time
+  var delta = at - this.update_time
   var newtime = this.time + (delta * this.timescale)
+
+  return newtime
+}
+
+Time.prototype.update = function() {
+
+
+  var now = (new Date).getTime()/1000;
+
+
+  var newtime = this.getTime(now)
 
   if (this.realtimelimit && newtime > now)
     newtime = now
 
-  var nextcallback = this.triggercallbacks(newtime)
+  this.triggercallbacks(newtime)
 
   this.update_time = now
   this.time = newtime
@@ -34,13 +45,36 @@ Time.prototype.update = function(now) {
 
   //console.log(this.time);
 
-  this.armtimer(nextcallback)
+  this.armtimer()
 
 
 
   return this.time
 
 }
+
+Time.prototype.updateprev = function(ts) {
+
+  var now = this.getTime()
+
+
+  if (ts < now && ts > this.prev) {
+    //this.prev = ts
+    this.update()
+  }
+
+}
+
+Time.prototype.updatenext = function(ts) {
+  var now = this.getTime()
+
+  if (ts > now && ts < this.next) {
+    //this.prev = ts
+    this.update()
+  }
+}
+
+
 
 Time.prototype.timer = function(self) {
   self.update()
@@ -50,44 +84,68 @@ Time.prototype.triggercallbacks = function(newtime) {
 
 
   var callback
-  var nextcallback = null
+  var delta
+  var deltanext = Infinity
+  var deltaprev = Infinity * -1
   var n,i
 
-  n = this.callbacks.length
-  for (i=0; i < n;i++){
-    callback = this.callbacks[i]
+  // n = this.callbacks.length
+  // for (i=0; i < n;i++){
+  //   callback = this.callbacks[i]
+  //
+  //   //Callback (and all remaining ones) is in the future
+  //   if (callback.time > newtime) {
+  //     nextcallback =  callback.time
+  //     break;
+  //   }
+  //
+  //   //Call callback and pop it.
+  //   callback.call(callback.time)
+  //   this.callbacks.shift()
 
-    //Callback (and all remaining ones) is in the future
-    if (callback.time > newtime) {
-      nextcallback =  callback.time
-      break;
-    }
-
-    //Call callback and pop it.
-    callback.call(callback.time)
-    this.callbacks.shift()
-
-  }
+  //}
 
   n = this.timeobjects.length
   for (i=0; i < n;i++){
+
+
     if (newtime < this.timeobjects[i].prev || newtime > this.timeobjects[i].next)
       this.timeobjects[i].update(newtime)
+
+    delta = this.timeobjects[i].prev - newtime
+
+    if (deltaprev < delta)
+      deltaprev = delta
+
+    delta = this.timeobjects[i].next - newtime
+
+    if (deltanext > delta)
+      deltanext = delta
+
   }
 
-  return nextcallback
+  this.next = newtime + deltanext
+  this.prev = newtime + deltaprev
+
+  //console.log(this.prev,newtime,this.next,deltaprev,deltanext);
+
+  return
 }
 
-Time.prototype.armtimer = function(nextcallback) {
+
+
+Time.prototype.armtimer = function() {
 
     var delta
 
-    if (this.scale == 0 || nextcallback == null)
+    if (this.timescale == 0)
       delta = this.updatefrequency
+    else if (this.timescale > 0)
+      delta = (this.next - this.time) / this.timescale
     else
-      delta = (nextcallback - this.time) / this.timescale
+      delta = (this.prev - this.time) / this.timescale
 
-    //console.log(nextcallback,delta);
+    //console.log("TMR: " + delta);
 
     if (delta > this.updatefrequency)
       delta = this.updatefrequency
@@ -96,8 +154,6 @@ Time.prototype.armtimer = function(nextcallback) {
       clearTimeout(this.tmrid)
 
     this.tmrid = setTimeout(this.timer,delta*1000,this);
-
-
 }
 
 Time.prototype.addcallback = function(time,callback) {
@@ -111,9 +167,24 @@ Time.prototype.addcallback = function(time,callback) {
     this.armtimer(time)
 }
 
+Time.prototype.addtimeobject = function(timeobject) {
+  var n,i
+
+  n = this.timeobjects.length
+
+  for (i=0;i<n;i++) {
+    if (this.timeobjects[i] == timeobject)
+      return fasle
+  }
+
+  this.timeobjects.push(timeobject)
+
+  this.update()
+}
+
 Time.prototype.setscale = function(scalefactor) {
   this.update()
-  this.scale = scalefactor
+  this.timescale = scalefactor
   this.update()
 
 }
