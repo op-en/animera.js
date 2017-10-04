@@ -43,7 +43,13 @@
 <!-- SCRIPT LE COUDE ################################ -->
 <script>
 
+function adjustivew(){
+  now = new Date().getTime()
+  myLineChart.options.scales.xAxes[0].ticks.max = now+5000,
+  myLineChart.options.scales.xAxes[0].ticks.min = now - 60000
+  myLineChart.update()
 
+}
 
 function initGraph (settings) {
 
@@ -57,7 +63,7 @@ function initGraph (settings) {
     data: {
 
         datasets: [{
-            label: settings.topic,
+            //label: settings.topic,
             backgroundColor:settings.backgroundColor,
             borderColor: settings.borderColor,
             steppedLine: true,
@@ -65,16 +71,30 @@ function initGraph (settings) {
         }]
     },
     options: {
+      legend: {
+          display: false,
+      },
       scales: {
         xAxes: [{
-        type: "time",
+
+        ticks: {
+
+          callback: function(value, index, values) {
+              return  "e:" + value;
+          },
+
+          min: (new Date().getTime())-60000,
+          max: (new Date().getTime())+50000,
+
+
+        },
+        type: "linear",
         display: true,
-        time: {
-                    unit: 'second'
-                },
+        position: 'bottom',
+        //bounds: 'ticks',
         scaleLabel: {
           display: true,
-          bounds: 'data',
+
           labelString: 'Date'
         },
                     ticks: {
@@ -128,8 +148,8 @@ AnimeraWidget.init({
   timerange: [1503391208, 1503392208],
   clamp: true,
   decimals: 0,
-  backgroundColor: "rgb(50, 50, 50)",
-  borderColor: "rgb(50,50,50)"
+  backgroundColor: "rgba(50,50,250,0.4)",
+  borderColor: "rgba(50,50,250,0.7)"
 }).then(function (objects) {
   var settings = objects.settings;
   var controller = objects.animera.getController(settings.server)
@@ -143,6 +163,9 @@ AnimeraWidget.init({
   //controller.bindTopicToCallback(addDataPoint, settings);
 
   //controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+
+  setInterval(adjustivew,50)
+
   controller.datasource.subscribe(settings.topic, function (topic, payload) {
     //console.log("debug test: " +  settings.subproprety);
     var data

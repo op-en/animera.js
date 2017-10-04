@@ -72,7 +72,7 @@ Controller.prototype.bindTopicToCallback = function (callback, settings) {
       }
     }
     // Only if string.
-    callback(data);
+    callback(data,payload);
   })
 }
 
