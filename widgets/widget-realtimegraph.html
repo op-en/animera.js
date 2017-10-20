@@ -47,6 +47,42 @@
 var relpos = 1000
 var graphwidth = 27810
 
+function updategraphdata(){
+
+  now = new Date().getTime()
+  var from = now + relpos - graphwidth
+  var to = now + relpos
+
+  var delta = myLineChart.options.scales.xAxes[0].time.min - from
+
+  var min
+
+  if (myLineChartData.length == 0 )
+    min = to
+  else {
+    min = myLineChartData[0].x
+  }
+
+  if ( delta > 0) {
+      var historical = data.GetFormattedPeriod(from/1000,min/1000,data.formating.chartjs)
+
+      var n = historical.length
+      if ( n > 0) {
+
+        myLineChartData.shift()
+
+        for(var i = n-1;i >= 0;i--){
+          //console.log("i:"+i);
+        //  if (myLineChartData.length > 0 && myLineChartData[0].x <= historical[i].x) {
+            //console.log("continue");
+          //  continue
+        //  }
+          myLineChartData.unshift(historical[i])
+        }
+
+      }
+  }
+}
 
 function adjustivew(){
   now = new Date().getTime()
@@ -54,7 +90,8 @@ function adjustivew(){
   var to = now + relpos
 
 
-    myLineChart.options.scales.xAxes[0].time.max = to
+
+    myLineChart.options.scales.xAxes[0].time.max = to + graphwidth*0.05
     myLineChart.options.scales.xAxes[0].time.min = from
 
   if (myLineChartData.length == 0)
@@ -63,18 +100,13 @@ function adjustivew(){
 
   myLineChartData[myLineChartData.length-1].x = now
 
+  while (myLineChartData.length > 1 && myLineChartData[1].x < from) {
+      myLineChartData.shift()
+  }
+
+
   if (myLineChartData[0].x < from) {
-    if (myLineChartData.length > 1 ) {
-      if (myLineChartData[1].x < from) {
-        myLineChartData.shift()
-      }
-
-      //console.log("delete");
-    }
-
     myLineChartData[0].x = from
-
-
   }
 
   if (n_labels_graph > 120) {
@@ -100,7 +132,12 @@ function initGraph (settings) {
   console.log("initGraph");
   //This is where we define the id of the chart container
   var ctx = document.getElementById("myLineChart").getContext('2d');
+  console.log(ctx.canvas.width);
+  ctx.canvas.width = ctx.canvas.width * 4
+  ctx.canvas.height = ctx.canvas.height * 4
+  console.log(ctx.canvas.width);
   myLineChartData = [];
+  myLineChartData2 = [];
   myLineChartLabels = [];
   myLineChart = new Chart(ctx, {
     type: 'line',
@@ -118,14 +155,6 @@ function initGraph (settings) {
     options: {
       animation: {
         duration: 0
-      },
-      pan: {
-          enabled: true,
-          mode: 'x',
-      },
-      zoom: {
-          enabled: true,
-          mode: 'x',
       },
       elements: { point: { radius: 0 } },
       legend: {
@@ -223,8 +252,8 @@ function initGraph (settings) {
 
                     maxRotation: 0,
                     minRotation: 0,
-                    min: (new Date().getTime())-60000,
-                    max: (new Date().getTime())+50000,
+                    //min: (new Date().getTime())-60000,
+                    //max: (new Date().getTime())+50000,
                     unitStepSize: 1,
                     //maxTicksLimit:10,
                     minUnit: "second",
@@ -244,6 +273,7 @@ function initGraph (settings) {
 
       }],
             yAxes: [{
+                bounds: 'ticks',
                 ticks: {
                     // Include a dollar sign in the ticks
                     callback: function(value, index, values) {
@@ -267,26 +297,13 @@ function initGraph (settings) {
     });
 
     //myLineChart.options.scales.xAxes[0].ticks.maxRotation = 0
-
-}
-
-
-
-//this is the function which push data points into the array which draws/powers the graph.
-function addDataPoint(settings, time, data) {
+    now = new Date().getTime()
+    var from = now + relpos - graphwidth
+    var to = now + relpos
 
 
-  var now = new Date().getTime();
-
-  //console.log(time);
-  //add data to the array of labels and datapoints and update the chart
-  myLineChartData.pop()
-  myLineChartData.push({x:time*1000,y:data});
-  myLineChartData.push({x:now,y:data});
-  //myLineChartLabels.push(hourMinSecs);
-  //myLineChart.update();
-
-  //addData(myLineChart, "time", mydata);
+    myLineChart.options.scales.xAxes[0].suggestedmax = to
+    myLineChart.options.scales.xAxes[0].suggestedMin = from
 }
 
 
@@ -324,12 +341,34 @@ AnimeraWidget.init({
   //controller.bindTopicToCallback(addDataPoint, settings);
 
   //controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
-  controller.bindTopicToCallback(function(data,payload){
 
-    addDataPoint(settings,payload.time,data)
-  },settings)
 
-  setInterval(adjustivew,30)
+  data = controller.getDataSeriesBuffer()
+  data.relativetime = true
+  data.starttime = -600
+  data.stoptime = 120
+
+  data.events.newdata = function(buffer,values){
+
+    //addDataPoint(settings,payload.time,data)
+
+    var now = new Date().getTime();
+
+    myLineChartData.pop()
+    myLineChartData.push({x:values[0]*1000,y:values[1]});
+    myLineChartData.push({x:now,y:values[1]});
+
+    //myLineChartData2.push({x:values[0]*1000,y:values[1]});
+
+  }
+
+  data.subscribe(controller.datasource,settings.topic)
+
+
+
+  window._data = data
+
+  setInterval(adjustivew,20)
 
   $("canvas").on("mousewheel", function(e) {
     if (e.ctrlKey) {
@@ -337,12 +376,13 @@ AnimeraWidget.init({
         e.stopImmediatePropagation();
 
         // perform desired zoom action here
-        console.log(e.originalEvent.deltaY);
+        //console.log(e.originalEvent.deltaY);
         if (e.originalEvent.deltaY > 0)
           graphwidth = graphwidth * 1.01
         if (e.originalEvent.deltaY < 0 && graphwidth > 3000)
           graphwidth = graphwidth * 0.99
 
+        updategraphdata()
 
     }
 
@@ -350,12 +390,13 @@ AnimeraWidget.init({
     e.stopImmediatePropagation();
 
     // perform desired zoom action here
-    console.log(e.originalEvent.deltaY);
+    //console.log(e.originalEvent.deltaY);
     if (e.originalEvent.deltaY > 0)
       graphwidth = graphwidth * 1.01
     if (e.originalEvent.deltaY < 0 && graphwidth > 3000)
       graphwidth = graphwidth * 0.99
 
+    updategraphdata()
 });
 
 

@@ -4,11 +4,22 @@ var time = require('./Time')
 var DataSeries  = function (time_object,server,topic) {
   this.time = time_object
 
+  this.formating = {
+    chartjs:function(v){
+        console.log(v);
+        return {"x":v[0]*1000,"y":v[1]}
+      }
+
+  }
+
   this.source = {"server" : server, "topic":topic}
   this.callbacks = []
   this.destination = {"topic":null,"local":true}
 
   this.meta = {}
+
+  this.events = {}
+  this.events.newdata = function(){}
 
   this.dataoffset = null
   this.datarescale = null
@@ -72,9 +83,11 @@ DataSeries.prototype.moveto = function(at) {
   this.update(true)
 }
 
-DataSeries.prototype.GetCurrentValues = function(at) {
-  return [0,0,0]
+DataSeries.prototype.getData = function(at) {
+  return this.getDataAtIndex(this.getIndex(at))
 }
+
+
 
 //DataSeriesBuffer inherents from dataseries.
 var DataSeriesBuffer =  function (time_object,server,topic) {
@@ -82,17 +95,19 @@ var DataSeriesBuffer =  function (time_object,server,topic) {
   this.relativetime = false
   this.starttime = 0
   this.stoptime = 0
-  this.length = 0
+  this.length = Infinity
 
   this.autoload = false
   this.autoloadthreshhold = null
 
   this.url = ""
   this.topic = ""
-  this.data = [];
+  this.buffer = [];
   this.currentIndex = null;
   this.prev = 1;
   this.next = -1;
+
+
 
 }
 
@@ -108,6 +123,43 @@ DataSeriesBuffer.prototype.GetValues = function(at) {
 
   return this.getDataAtIndex(index)
 }
+
+DataSeriesBuffer.prototype.GetFormattedPeriod = function(from,to,format) {
+  if (format === undefined)
+    format = function(values){ return values}
+
+  var fromIndex = this.getIndex(from)
+  var toIndex = this.getIndex(to)
+  var rows = (toIndex - fromIndex) + 1
+  var cols = this.meta.Keys.length
+
+  if (fromIndex == -1)
+    fromIndex = 0
+
+  //Empty result
+  if (rows < 0 )
+    return []
+
+  //Allocate matrix.
+  var result = new Array(rows);
+  //for (var i = 0; i < rows; i++) {
+  //  result[i] = new Array(cols);
+  //}
+
+  console.log(fromIndex,toIndex);
+
+  for (var i = 0; i < rows; i++) {
+    result[i] = format(this.buffer[fromIndex + i])
+    console.log("RES");
+    console.log(result[i]);
+    console.log(this.buffer[fromIndex + i],fromIndex + i);
+
+
+  }
+
+  return result
+}
+
 
 DataSeriesBuffer.prototype.update = function(now) {
 
@@ -148,7 +200,7 @@ var forceupdate = false
 
 
 
-  console.log(this.currentIndex);
+  //console.log(this.currentIndex);
 }
 
 DataSeriesBuffer.prototype.getDataAtIndex = function(index) {
@@ -166,15 +218,22 @@ DataSeriesBuffer.prototype.getOriginalDataAtIndex = function(index) {
   if (index < 0)
     return null
 
-  if (index >= this.data.lenght)
+  if (index >= this.buffer.lenght)
     return null
 
-  return this.data[index]
+  return this.buffer[index]
 
 }
 
-DataSeriesBuffer.prototype.getIndex = function(ts) {
+DataSeriesBuffer.prototype.getRelativeIndex = function(ts) {
+  //console.log(ts,this.time.getTime());
+  ts = ts + this.time.getTime()
+  //console.log(ts);
+  return this.getIndex(ts)
+}
 
+DataSeriesBuffer.prototype.getIndex = function(ts) {
+  //console.log(ts);
   var dir
   var currenttime, currentindex
   var newindex
@@ -191,9 +250,9 @@ DataSeriesBuffer.prototype.getIndex = function(ts) {
   currentindex = this.currentIndex
 
   //If index is set to a linjear search from it.
-  if (currentindex != null && currentindex > 0 && currentindex < this.data.length) {
-
-    currenttime = this.data[currentindex][0];
+  if (currentindex != null && currentindex >= 0 && currentindex < this.buffer.length) {
+    //console.log("Index"+currentindex);
+    currenttime = this.buffer[currentindex][0];
 
     //In the past
     if (currenttime > ts) {
@@ -201,33 +260,38 @@ DataSeriesBuffer.prototype.getIndex = function(ts) {
 
       //No data.
       if (newindex < 0)
-        return null
+        return -1
 
-      if (this.data[newindex][0] <= ts)
+      if (this.buffer[newindex][0] <= ts) {
+        //console.log("linjear past")
         return newindex
+      }
     }
     //Or future
     else {
       newindex = currentindex + 1
       //No data.
-      if (newindex >= this.data.length)
-        return null
-
-      if (this.data[newindex][0] > ts)
+      if (newindex > this.buffer.length-1)
         return currentindex
+
+      if (this.buffer[newindex][0] > ts) {
+        //console.log("linjear future");
+        return currentindex
+      }
     }
   }
+
   //Else do a binary search
-  currentindex = binarySearch(this.data,ts,function(a,b){
+  currentindex = binarySearch(this.buffer,ts,function(a,b){
     return a - b[0]
   })
 
   //if (currentindex == -1)
   //  return null
 
-  //if (currentindex == this.data.length - 1)
+  //if (currentindex == this.buffer.length - 1)
   //  return null
-
+  //console.log("binary:"+currentindex);
   return currentindex
 }
 
@@ -246,7 +310,7 @@ DataSeriesBuffer.prototype.incommingJSON = function(status,response) {
   //console.log(status);
   //console.log(response)
   //this.response = response
-  this.data = response.Data
+  this.buffer = response.Data
   this.meta = response.Meta
 
   this.update(true)
@@ -270,6 +334,127 @@ DataSeriesBuffer.prototype.getJSON = function(url, callback) {
     xhr.send();
 };
 
+DataSeriesBuffer.prototype.subscribe = function(server,topic) {
+  //if (typeof (this.source.server) === undefined)
+  //    return false
+
+  this.source.topic = topic
+  this.source.server = server
+  //console.log("Topic:"+topic);
+  var obj = this;
+  this.source.server.subscribe(topic,function (topic, payload) {
+    //console.log("callback");
+    obj.updatedata(topic,payload)
+
+  })
+
+  return true
+};
+
+DataSeriesBuffer.prototype.updatedata = function(topic,payload) {
+  //console.log(topic,payload);
+  try {
+    payload = JSON.parse(payload)
+  }
+  catch (e) {
+      //console.error(e)
+    return
+  }
+
+  var keys = Object.keys(payload)
+  var values = Object.values(payload)
+
+  //console.log(keys);
+  //console.log(values);
+
+  //Set keys if not already set.
+  if (this.meta.Keys === undefined)
+    this.setkeys(keys)
+
+  var n = values.length;
+  var dataarray = new Array(n);
+
+  var keyindex = 0
+  for (var i=0; i<n;i++) {
+    keyindex = this.meta.Keys.indexOf(keys[i])
+
+    //Missing key
+    if (keyindex < 0) {
+      keyindex = this.addkey(keys[i])
+    }
+
+    dataarray[keyindex]=values[i]
+  }
+
+  this.insertdata(dataarray)
+
+  //Activate callback
+  if (this.events.newdata !== undefined)
+    this.events.newdata(this,dataarray)
+
+};
+
+DataSeriesBuffer.prototype.insertdata = function(dataarray) {
+  var index = this.getIndex(dataarray[0]) + 1
+  //console.log(index,this.getIndex(dataarray[0]));
+  this.buffer.splice(index, 0, dataarray);
+  this.trim()
+}
+
+
+
+DataSeriesBuffer.prototype.trim = function(key) {
+
+
+  var start,end
+  if (this.relativetime) {
+    start = this.getRelativeIndex(this.starttime ) - 2
+    end = this.getRelativeIndex(this.stoptime) + 2
+  }
+  else {
+    start = this.getIndex(this.starttime ) -2
+    end = this.getIndex(this.stoptime) + 2
+  }
+
+
+  if (!isNaN(end))
+    this.buffer.splice(end,Infinity)
+  if (!isNaN(start))
+    this.buffer.splice(0,start)
+
+  if (this.length == Infinity)
+    return
+
+  console.log("Overflow");
+  var overflow = this.buffer.length - this.length
+
+  if (overflow > 0)
+    this.buffer.splice(0,overflow)
+
+}
+
+DataSeriesBuffer.prototype.addkey = function(key) {
+  this.meta.Keys.push(key)
+  return this.meta.Keys.length-1
+}
+DataSeriesBuffer.prototype.setkeys = function(keys) {
+  //Copy
+  var keyscopy = keys.slice()
+
+  //Make sure time is first
+  var ntime = keyscopy.indexOf("time")
+  if (ntime > 0) {
+
+    //Move time to the beginning
+    keyscopy.splice(ntime,1)
+    keyscopy.unshift("time")
+  }
+
+  //Add to meta info.
+  this.meta.Keys = keyscopy
+}
+
+
 
 
 //DataSeriesModifier inherents from dataseries.
@@ -279,10 +464,10 @@ var DataSeriesModifier = module.exports = function (time_object,server,topic) {
   this.operation = "sum"
 }
 
-
+//Module wrapper
 var Timeseries = module.exports = {DataSeries,DataSeriesBuffer}
 
-
+//Utility functions
 
 function binarySearch(ar, el, compare_fn) {
     var m = 0;
