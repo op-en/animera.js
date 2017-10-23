@@ -87,9 +87,14 @@ AnimeraWidget.init = function (widgetDefaults) {
     // We proceed to parsing the settings in the href of the object tag
     const href = document.defaultView.location.href
     const settings = this.parseSettings(href, widgetDefaults)
+    if (typeof(setting.source) !== undefined) {
+      
+    }
+
     return Promise.resolve({animera: animera, settings: settings})
   })
 }
+
 
 AnimeraWidget.scripts = document.getElementsByTagName('script')
 window.AnimeraWidget = AnimeraWidget

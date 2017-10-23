@@ -316,6 +316,8 @@ Controller.prototype.getDataSeriesBuffer = function (element, settings) {
   return new Timeseries.DataSeriesBuffer(this.time)
 }
 
+
+
 Controller.prototype.autobind = function (bindDocument, objectData) {
   const controller = this
   bindDocument = bindDocument || document
