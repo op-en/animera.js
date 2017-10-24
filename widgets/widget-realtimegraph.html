@@ -14,8 +14,8 @@
 
   <body>
 
-      <div id="graphWrapper">
-        <canvas id="myLineChart" width="800" height="400"></canvas>
+      <div id="outer">
+        <canvas id="myLineChart" style="width:100%;" height="100%" ></canvas>
       </div>
 
   </body>
@@ -29,7 +29,7 @@
     font-weight:300;
     text-align: center;
     font-size: 18pt;
-    padding:80px;
+
 
   }
 
@@ -43,6 +43,16 @@
 
 <!-- SCRIPT LE COUDE ################################ -->
 <script>
+
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "80%";
+  document.getElementById("outer").style.height = "60vh";
+  document.getElementById("outer").style["padding-left"] = "10%";
+  document.getElementById("outer").style["padding-top"] = "20vh";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
 
 var relpos = 1000
 var graphwidth = 27810
@@ -129,13 +139,13 @@ function adjustivew(){
 
 function initGraph (settings) {
 
-  console.log("initGraph");
+  //console.log("initGraph");
   //This is where we define the id of the chart container
   var ctx = document.getElementById("myLineChart").getContext('2d');
-  console.log(ctx.canvas.width);
+  //console.log(ctx.canvas.width);
   ctx.canvas.width = ctx.canvas.width * 4
   ctx.canvas.height = ctx.canvas.height * 4
-  console.log(ctx.canvas.width);
+  //console.log(ctx.canvas.width);
   myLineChartData = [];
   myLineChartData2 = [];
   myLineChartLabels = [];
@@ -307,6 +317,9 @@ function initGraph (settings) {
 }
 
 
+
+
+
 AnimeraWidget.init({
   server: 'https://op-en.se',
   topic: 'test/signalA',
@@ -332,6 +345,7 @@ AnimeraWidget.init({
     settings.backgroundColor = settings.color
   }
 
+  window._settings = settings
   window._controller = controller
 
   initGraph(settings);
@@ -355,7 +369,7 @@ AnimeraWidget.init({
     var now = new Date().getTime();
 
     myLineChartData.pop()
-    myLineChartData.push({x:values[0]*1000,y:values[1]});
+    myLineChartData.push({x:values[0]*1000,y:values[buffer.keyId(settings.subproperty)]});
     myLineChartData.push({x:now,y:values[1]});
 
     //myLineChartData2.push({x:values[0]*1000,y:values[1]});

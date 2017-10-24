@@ -10,40 +10,48 @@ AnimeraWidget.parseSettings = require('./modules/parseSettings')
 AnimeraWidget.getAnimera = function () {
   // Find top most window.
   var topmost = window
-  while (topmost !== topmost.parent) {
+
+
+
+  while (typeof(topmost.parent) === "object" && topmost !== topmost.parent) {
+
+
     topmost = topmost.parent
   }
 
+
+
   // Check if Animera is already loaded
-  if (!topmost.parent.hasOwnProperty(ANIMERA)) {
+  if (!topmost.hasOwnProperty(ANIMERA)) {
     // Load Animera in this document
     // It will automatically attach itself to the topmost parent
-    topmost.parent[ANIMERA] = 'loading'
+    topmost[ANIMERA] = 'loading'
+
     return AnimeraWidget.loadScript(animeraSourcePath).then(() => {
       // If there is a queue, resolve the entire queue waiting for the load of Animera
-      if (topmost.parent[ANIMERA_QUEUE]) {
-        for (let resolve of topmost.parent[ANIMERA_QUEUE]) {
+      if (topmost[ANIMERA_QUEUE]) {
+        for (let resolve of topmost[ANIMERA_QUEUE]) {
           resolve()
         }
       }
-      return Promise.resolve(topmost.parent[ANIMERA])
+      return Promise.resolve(topmost[ANIMERA])
     })
-  } else if (topmost.parent[ANIMERA] === 'loading') {
+  } else if (topmost[ANIMERA] === 'loading') {
     // Loading has started but is not finished, add us to the loading queue
 
     // Initiate the queue if required
-    topmost.parent[ANIMERA_QUEUE] = topmost.parent[ANIMERA_QUEUE] || []
+    topmost[ANIMERA_QUEUE] = topmost[ANIMERA_QUEUE] || []
 
     // Add this resolve to a global queue
     return new Promise((resolve, reject) => {
-      topmost.parent[ANIMERA_QUEUE].push(resolve)
+      topmost[ANIMERA_QUEUE].push(resolve)
     }).then(() => {
       // When returned from the queue
-      return Promise.resolve(topmost.parent[ANIMERA])
+      return Promise.resolve(topmost[ANIMERA])
     })
   } else {
     // Animera object is already loaded
-    return Promise.resolve(topmost.parent[ANIMERA])
+    return Promise.resolve(topmost[ANIMERA])
   }
 }
 
@@ -87,9 +95,33 @@ AnimeraWidget.init = function (widgetDefaults) {
     // We proceed to parsing the settings in the href of the object tag
     const href = document.defaultView.location.href
     const settings = this.parseSettings(href, widgetDefaults)
-    if (typeof(setting.source) !== undefined) {
-      
+    if (typeof(settings.source) !== 'undefined') {
+      console.log("Overriding topic with source parameters");
+
+      var parsedsource = animera.parse_data_url(settings.source)
+      //console.log(source);
+      if (typeof(parsedsource.server) !== 'undefined'){
+        if (parsedsource.protocol == "apps")
+          settings.server = "https://" + parsedsource.server
+        else if (parsedsource.protocol == "app")
+          settings.server = "http://" + parsedsource.server
+        else
+          settings.server = parsedsource.server
+      }
+      settings.topic = parsedsource.topic
+      settings.protocol = parsedsource.protocol
+      settings.subproperty = parsedsource.subproperty
+      console.log(settings)
     }
+
+    if (typeof(settings.protocol) === 'undefined') {
+      if (settings.server.indexOf("https://") > 0)
+        settings.protocol = "apps"
+      else {
+        settings.protocol = "app"
+      }
+    }
+
 
     return Promise.resolve({animera: animera, settings: settings})
   })

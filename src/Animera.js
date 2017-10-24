@@ -110,6 +110,8 @@ Animera.prototype.ready = function () {
 var ANIMERA = 'Animera'
 var topmost = window
 
+
+
 while (topmost !== topmost.parent) {
   topmost = topmost.parent
 }

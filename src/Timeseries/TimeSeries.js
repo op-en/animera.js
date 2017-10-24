@@ -454,6 +454,17 @@ DataSeriesBuffer.prototype.setkeys = function(keys) {
   this.meta.Keys = keyscopy
 }
 
+DataSeriesBuffer.prototype.keyId = function(key) {
+  var n = this.meta.Keys.length;
+
+  for (var i=0; i<n; i++) {
+    if (this.meta.Keys[i] == key)
+      return i
+  }
+
+  return -1
+
+}
 
 
 
