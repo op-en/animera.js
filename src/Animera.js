@@ -2,19 +2,26 @@
 // This code was created by the open energy playground project 2016.
 
 var Controller = require('./modules/Controller')
+var Time = require('./Timeseries/Time')
 
 var Animera = module.exports = function () {
   this.datasources = {
     appserver: require('./datasources/AppServer')
   }
   this.controllers = []
+  this.times = {}
 }
 
+Animera.prototype.getTime = function (name) {
+   if (typeof(this.times[name]) === 'undefined')
+    this.times[name] = new Time()
 
+  return this.times[name]
+}
 
 Animera.prototype.getController = function (url, sourcetype) {
   // If no type of source is specified, assume that we are looking for an Op-En App server
-  // TODO: replace this with mqtt websockets
+  // TODO: add mqtt websockets
   sourcetype = sourcetype || 'appserver'
 
   if (sourcetype == "app") {

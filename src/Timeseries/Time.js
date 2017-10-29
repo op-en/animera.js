@@ -4,6 +4,8 @@ var Time = module.exports = function (now) {
   now = now || this.update_time
   this.time = now
   this.timescale = 1.0
+  this.prevtimescale = 1.0
+  this.settingchanged = true
   this.offset = 0
   this.realtimelimit = true
   this.callbacks = []
@@ -108,19 +110,28 @@ Time.prototype.triggercallbacks = function(newtime) {
   n = this.timeobjects.length
   for (i=0; i < n;i++){
 
+    try {
 
-    if (newtime < this.timeobjects[i].prev || newtime > this.timeobjects[i].next)
-      this.timeobjects[i].update(newtime)
+      if (newtime < this.timeobjects[i].prev || newtime > this.timeobjects[i].next || (this.settingchanged))
+      {
+        this.settingchanged = false
+        this.timeobjects[i].update(newtime)
+      }
+      delta = this.timeobjects[i].prev - newtime
 
-    delta = this.timeobjects[i].prev - newtime
+      if (deltaprev < delta)
+        deltaprev = delta
 
-    if (deltaprev < delta)
-      deltaprev = delta
+      delta = this.timeobjects[i].next - newtime
 
-    delta = this.timeobjects[i].next - newtime
+      if (deltanext > delta)
+        deltanext = delta
 
-    if (deltanext > delta)
-      deltanext = delta
+    }
+    catch(e){
+      console.log("Error in timeobject:" + i + " " + this.timeobjects[i]);
+      continue
+    }
 
   }
 
@@ -185,6 +196,25 @@ Time.prototype.addtimeobject = function(timeobject) {
 Time.prototype.setscale = function(scalefactor) {
   this.update()
   this.timescale = scalefactor
+  this.settingchanged = true
   this.update()
 
+}
+
+Time.prototype.settime = function(time) {
+  this.update()
+  this.time = time
+  this.update_time = (new Data()).getTime()/1000
+  this.settingchanged = true
+  this.update()
+
+}
+
+Time.prototype.pause = function(scalefactor) {
+  this.prevtimescale = this.timescale
+  this.setscale(0)
+}
+
+Time.prototype.play = function(scalefactor) {
+  this.setscale(this.prevtimescale)
 }

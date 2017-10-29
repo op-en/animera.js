@@ -17,7 +17,7 @@
 </head>
 <body onresize="resize()">
   <div id="outer">
-      <div id="topictree" style="width:120%; height:100%; border: 2px grey solid; border-radius:4px; padding-top:10px; "></div>
+      <div id="topictree" style="width:120%; height:100%; border: 2px grey solid; border-radius:4px; padding-top:10px; overflow:scroll;"></div>
 
       <div id="info" title="Viewing: %SOURCE%" style="display:none;">
   <object id="graph" data="widget-realtimegraph.html?source=%SOURCE%&unit=&max=&" style="width:100%; height:30vh; " ></object></p>
@@ -32,7 +32,7 @@
 //If running stand alone.
 if (window == window.parent) {
   document.getElementById("outer").style.width = "20%";
-  document.getElementById("outer").style.height = "98vh";
+  document.getElementById("outer").style.height = "95vh";
   document.getElementById("outer").style["padding-left"] = "0%";
   //document.getElementById("outer").style.height = "100vh";
 }
@@ -79,8 +79,8 @@ function GeneratePath(topic,tree,settings){
 
   //console.log("Add subtree");
 
-  if ( !IsInTree(topic+":loading",tree)) {
-    subtree.push({"id": topic + ":loading","parent" :topic,"text" :"loading...","icon":"file"})
+  if ( !IsInTree(topic+":::loading",tree)) {
+    subtree.push({"id": topic + ":::loading","parent" :topic,"text" :"wating for data...","icon":"file"})
   }
 
   toptopic = settings.topic.split("/#")[0];
@@ -161,15 +161,24 @@ function UpdateProperties (payload,node,settings){
   try
   {
      var jsonObj = JSON.parse(payload);
+    //  console.log("json");
+    //  console.log(typeof(jsonObj));
+    //  console.log(jsonObj);
+
+     if (typeof(jsonObj) !== 'object')
+      throw {name : "NotObjectError", message : "too lazy to implement"};
   }
   catch(e)
   {
-    var id = node.id + ":payload";
+    //console.log("non json");
+    var id = node.id + ":::payload";
     if ($('#topictree').jstree().rename_node( id, payload) == false) {
       var newNode = { "id" : id, "text" : payload , "icon":"empty"};
       $('#topictree').jstree().create_node(node.id ,  newNode, "last")
-      $('#topictree').jstree().delete_node(node.id + ":loading");
+      $('#topictree').jstree().delete_node(node.id + ":::loading");
     }
+
+    return
   }
 
   for (var property in jsonObj) {
@@ -182,7 +191,7 @@ function UpdateProperties (payload,node,settings){
         //Else create new node
         var newNode = { "id" : id, "text" : text , 'icon': 'jstree-file'};
         $('#topictree').jstree().create_node(node.id ,  newNode, "last")
-        $('#topictree').jstree().delete_node(node.id + ":loading");
+        $('#topictree').jstree().delete_node(node.id + ":::loading");
       }
     }
 }
@@ -241,6 +250,9 @@ AnimeraWidget.init({
                                 "label": "Copy topic",
                                 "action": function (obj) {
                                     var topic = $('#topictree').jstree('get_selected')[0] ;
+
+                                    topic = topic.split(":::")[0]
+
                                     window.prompt("Copy to clipboard: Ctrl+C, Enter", topic);
 },
                             },

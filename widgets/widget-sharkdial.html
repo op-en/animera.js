@@ -146,11 +146,14 @@
     outputRange: [0, 180],
     clamp: true,
     decimals: 0,
-    relative: false
+    relative: false,
+    unit:"Watt"
   }).then(function (objects) {
     var settings = objects.settings;
     var controller = objects.animera.getController(settings.server)
 
+    document.getElementById("unit").innerHTML=settings.unit
+    settings.unit = ""
     controller.bindTopicToHtml(document.getElementById("value"), settings)
     controller.bindTopicToRotation(document.getElementById("needle"), settings)
   })

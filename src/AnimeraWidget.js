@@ -88,6 +88,21 @@ AnimeraWidget.loadScript = function (url) {
   })
 }
 
+AnimeraWidget.parseifJSON = function (payload){
+
+  try
+  {
+     var jsonObj = JSON.parse(payload);
+
+     return jsonObj
+  }
+  catch(e)
+  {
+    return payload
+  }
+
+}
+
 AnimeraWidget.init = function (widgetDefaults) {
   // Get the appropriate animera object
   return AnimeraWidget.getAnimera().then((animera) => {
