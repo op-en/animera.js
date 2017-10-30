@@ -6,7 +6,7 @@ var DataSeries  = function (time_object,server,topic) {
 
   this.formating = {
     chartjs:function(v){
-        console.log(v);
+        //console.log(v);
         return {"x":v[0]*1000,"y":v[1]}
       }
 
@@ -130,7 +130,7 @@ DataSeriesBuffer.prototype.GetFormattedPeriod = function(from,to,format) {
 
   var fromIndex = this.getIndex(from)
   var toIndex = this.getIndex(to)
-  var rows = (toIndex - fromIndex) + 1
+  var rows = (toIndex - fromIndex)+1
   var cols = this.meta.Keys.length
 
   if (fromIndex == -1)
@@ -146,13 +146,13 @@ DataSeriesBuffer.prototype.GetFormattedPeriod = function(from,to,format) {
   //  result[i] = new Array(cols);
   //}
 
-  console.log(fromIndex,toIndex);
+  //console.log("Index: ",fromIndex,toIndex);
 
   for (var i = 0; i < rows; i++) {
-    result[i] = format(this.buffer[fromIndex + i])
-    console.log("RES");
-    console.log(result[i]);
-    console.log(this.buffer[fromIndex + i],fromIndex + i);
+    //console.log("i rows ",i,rows)
+    result[i] = format(this.ApplyModifiers(this.buffer[fromIndex + i]))
+    //console.log(result[i]);
+    //console.log(this.buffer[fromIndex + i],fromIndex + i);
 
 
   }
@@ -209,6 +209,22 @@ DataSeriesBuffer.prototype.getDataAtIndex = function(index) {
   if (data == null)
     return null
   return this.ApplyModifiers(data)
+}
+
+DataSeriesBuffer.prototype.getPeriod = function() {
+
+  var n = this.buffer.length
+  if (n == 0)
+    return []
+
+  var first = this.getDataAtIndex(0)
+
+  if (n == 1)
+    return [first[0],first[0]]
+
+  var last = this.getDataAtIndex(n-1)
+
+  return [first[0],last[0]]
 }
 
 DataSeriesBuffer.prototype.getOriginalDataAtIndex = function(index) {
@@ -296,14 +312,14 @@ DataSeriesBuffer.prototype.getIndex = function(ts) {
 }
 
 
-DataSeriesBuffer.prototype.LoadJSON = function(url) {
+DataSeriesBuffer.prototype.LoadJSON = function(url,callback) {
   this.url = url
   var self = this
+  this.onloaded = callback
+
   this.getJSON(url,function (status,response){ self.incommingJSON(status,response) })
   //console.log("Requesting");
 }
-
-
 
 DataSeriesBuffer.prototype.incommingJSON = function(status,response) {
   //console.log(this);
@@ -315,7 +331,11 @@ DataSeriesBuffer.prototype.incommingJSON = function(status,response) {
 
   this.update(true)
 
+  if (typeof(this.onloaded) === 'function')
+    this.onloaded(this)
+
   console.log("Loaded " + response.Data.length + " rows of data");
+
 }
 
 DataSeriesBuffer.prototype.getJSON = function(url, callback) {

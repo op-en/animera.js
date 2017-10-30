@@ -9,7 +9,7 @@
 </head>
 
 <body onresize="resize()">
-  <div id="outer" style="border: solid red; height: 100vh;">
+  <div id="outer" >
     <div id="video" style="width:100%;height:100%;"></div>
 
   </div>
@@ -20,10 +20,10 @@
 
 //If running stand alone.
 if (window == window.parent) {
-  document.getElementById("outer").style.width = "100%";
-  document.getElementById("outer").style["padding-left"] = "0%";
-  document.getElementById("outer").style.height = "100vh";
-  document.getElementById("outer").style.overflow = "hidden";
+  //document.getElementById("outer").style.width = "100%";
+  //document.getElementById("outer").style["padding-left"] = "0%";
+  //document.getElementById("outer").style.height = "100vh";
+  //document.getElementById("outer").style.overflow = "hidden";
   //document.getElementById("outer").style.height = "100vh";
 }
 
@@ -52,7 +52,7 @@ function resize() {
 
     document.getElementById("value").style.top = value_top + "px"
 
-    console.log(value_top + "px")
+    //console.log(value_top + "px")
 
   }
 
@@ -93,16 +93,60 @@ AnimeraWidget.init({
   //pop.play();
 
   //controller.bindTopicToHtml(document.getElementById("value"), settings)
-  console.log("check1!")
+  //console.log("check1!")
 
   if (settings.source.indexOf("time:") == 0){
 
     var name = settings.source.split("time:")[1]
     var timeobj = objects.animera.getTime(name)
+    var changedspeed = false
 
     this.scalechange = true
-    this.update = function(time){
-      console.log(time);
+    this.update = function(time,obj){
+
+      var pos = time - settings.starttime
+
+      //console.log(pos,pop.duration())
+
+      //Time is after the movie
+      if (pos > pop.duration()) {
+        pos = pop.duration()
+        pop.pause(pos-0.3)
+        this.prev = pos + settings.starttime
+        this.next = Infinity
+        return
+      }
+
+      //Time is before the movie
+      if (pos < 0) {
+        pop.pause(0)
+        this.prev = -Infinity
+        this.next = settings.starttime
+        return
+      }
+
+      if (pop.playbackRate() != obj.timescale) {
+        pop.playbackRate(obj.timescale)
+        changedspeed = true
+      }
+
+      var delta = pop.currentTime() - pos
+
+      if (obj.timescale == 0)
+        pop.pause(pos)
+      else {
+
+        //console.log(delta)
+        if (changedspeed || Math.abs(delta) > 0.2)
+          pop.play(pos)
+
+      }
+
+      this.prev = time - obj.timescale
+      this.next = time + obj.timescale
+
+      //console.log(obj.timescale,time,this.next,delta);
+
     }
 
     timeobj.addtimeobject(this)
@@ -122,7 +166,7 @@ AnimeraWidget.init({
 
        data = AnimeraWidget.parseifJSON(data)
 
-       console.log(typeof(data))
+       //console.log(typeof(data))
 
        if (typeof(data) === 'object')
        {
@@ -173,6 +217,25 @@ function resize(){
 </script>
 <style>
 
+html {
+  margin:0px;
+}
+
+body{
+  margin:0px;
+  width:100vw;
+  overflow: hidden;
+
+}
+
+
+#outer{
+  width: calc(100% -0px );
+
+  position:relative;
+  overflow:hidden;
+  border:none;
+}
 
 
   .text {
@@ -196,8 +259,6 @@ function resize(){
 
   }
 
-  .ytp-watermark {
-    display: none;
-  }
+
 </style>
 </body>

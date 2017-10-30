@@ -115,7 +115,7 @@ Time.prototype.triggercallbacks = function(newtime) {
       if (newtime < this.timeobjects[i].prev || newtime > this.timeobjects[i].next || (this.settingchanged))
       {
         this.settingchanged = false
-        this.timeobjects[i].update(newtime)
+        this.timeobjects[i].update(newtime,this)
       }
       delta = this.timeobjects[i].prev - newtime
 
@@ -204,7 +204,7 @@ Time.prototype.setscale = function(scalefactor) {
 Time.prototype.settime = function(time) {
   this.update()
   this.time = time
-  this.update_time = (new Data()).getTime()/1000
+  this.update_time = (new Date()).getTime()/1000
   this.settingchanged = true
   this.update()
 
@@ -217,4 +217,9 @@ Time.prototype.pause = function(scalefactor) {
 
 Time.prototype.play = function(scalefactor) {
   this.setscale(this.prevtimescale)
+}
+
+Time.prototype.pauseandrevind = function() {
+  this.setscale(0)
+  this.settime(0)
 }
