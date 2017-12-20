@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+</head>
+<body onresize="resize()">
+  <div id="outer">
+    <svg id="svgloop" data-name="Lager 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 982.83 300">
+      <defs>
+
+    </defs>
+    <title>loop</title>
+      <g id="loop">
+        <path class="cls-1" id="flow"
+      d="M143,358s106,104,165,83,76-142,147-83,81,217,219,142,172-78,137-158-167-86-199-34S735,536,876,527s242-183,242-183"
+      transform="translate(-139.5 -269.36)"
+      stroke="#000"
+      stroke-width="4.3" fill="none" d="…"
+      stroke-dasharray="4.06 4.06"/>
+      </g>
+    </svg>
+  <div id="value" class="text" onresize="text_resize()">   -    W</div>
+</div>
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  document.getElementById("outer").style["padding-top"] = window.innerHeight/4 + "px"
+  document.getElementById("outer").style.height = window.innerHeight/3 + "px"
+}
+
+function resize() {
+  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  //document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+  console.log(window.innerHeight);
+  if (window == window.parent) {
+    //document.getElementById("outer").style.height = window.innerHeight/3 + "px"
+    document.getElementById("outer").style["padding-top"] = (window.innerHeight - (window.innerHeight/3))/2 + "px"
+    console.log("test");
+  }
+}
+resize();
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/signalA',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [0, 1000],
+  color: "rgb(0,158,194)",
+  width: 30,
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+  document.getElementById("flow").style["stroke-width"] = "" + settings["width"]
+  document.getElementById("flow").style["stroke"] = "" + settings.color
+  controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bind_topic_to_style(document.getElementById("loop"), settings)
+  //controller.bindTopicToCallback(function(data){ChangeSpeed(data,settings)},settings)
+
+  var cntrl = controller.animateStyle("flow","stroke-dashoffset",null,settings)
+
+  //For debugging
+  window.loop = cntrl
+  window._controller = controller
+
+
+})
+
+
+
+</script>
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -20%;
+    width: 100%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+  .cls-1 {
+    border-color: "#FFFE1C";
+    stroke-dasharray: 0 60;
+    stroke-dashoffset: 30;
+    /*i pixlar*/
+    transition: stroke-dashoffset linear 1s;
+    stroke-linecap:round;
+  }
+
+
+}
+</style>
+</body>
+<!-- http://localhost:8080/dist/widgets/widget-loop.html?topic=test/signalB -->

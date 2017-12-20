@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	  <!-- inject:widgetutils:js -->
+	  <!-- endinject -->
+	  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	</head>
+		<body>
+
+			<div id="main">
+			</div>
+
+		</body>
+
+		<style>
+			#main {
+				border: solic red 2px;
+			}
+			
+		</style>
+</html>

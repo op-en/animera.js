@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <!-- inject:animerawidget:js -->
+    <!-- endinject -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+      <div id="outer">
+        <canvas id="myLineChart" style="width:100%;" height="100%" ></canvas>
+      </div>
+
+  </body>
+
+<!-- STYLE CSS ETC################################ -->
+<style>
+
+  html {
+    font-family: 'Lato', sans-serif;
+    background-color: none;
+    font-weight:300;
+    text-align: center;
+    font-size: 18pt;
+
+
+  }
+
+  .graphWrapper {
+    padding: 80px;
+    box-sizing: border-box;
+  }
+
+</style>
+
+
+<!-- SCRIPT LE COUDE ################################ -->
+<script>
+
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "80%";
+  document.getElementById("outer").style.height = "60vh";
+  document.getElementById("outer").style["padding-left"] = "10%";
+  document.getElementById("outer").style["padding-top"] = "20vh";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+
+var relpos = 1000
+var graphwidth = 27810
+
+function updategraphdata(){
+
+  now = new Date().getTime()
+  var from = now + relpos - graphwidth
+  var to = now + relpos
+
+  var delta = myLineChart.options.scales.xAxes[0].time.min - from
+
+  var min
+
+  if (myLineChartData.length == 0 )
+    min = to
+  else {
+    min = myLineChartData[0].x
+  }
+
+  if ( delta > 0) {
+      var historical = data.GetFormattedPeriod(from/1000,min/1000,data.formating.chartjs)
+
+      var n = historical.length
+      if ( n > 0) {
+
+        myLineChartData.shift()
+
+        for(var i = n-1;i >= 0;i--){
+          //console.log("i:"+i);
+        //  if (myLineChartData.length > 0 && myLineChartData[0].x <= historical[i].x) {
+            //console.log("continue");
+          //  continue
+        //  }
+          myLineChartData.unshift(historical[i])
+        }
+
+      }
+  }
+}
+
+function adjustivew(){
+  now = new Date().getTime()
+  var from = now + relpos - graphwidth
+  var to = now + relpos
+
+
+
+    myLineChart.options.scales.xAxes[0].time.max = to + graphwidth*0.05
+    myLineChart.options.scales.xAxes[0].time.min = from
+
+  if (myLineChartData.length == 0)
+    return
+
+
+  myLineChartData[myLineChartData.length-1].x = now
+
+  while (myLineChartData.length > 1 && myLineChartData[1].x < from) {
+      myLineChartData.shift()
+  }
+
+
+  if (myLineChartData[0].x < from) {
+    myLineChartData[0].x = from
+  }
+
+  if (n_labels_graph > 120) {
+    //console.log(n_labels_graph);
+    if (myLineChart.options.scales.xAxes[0].time.unit == "second" || myLineChart.options.scales.xAxes[0].time.unit == false)
+      myLineChart.options.scales.xAxes[0].time.unit = "minute"
+  }
+
+  if (n_labels_graph < 3) {
+    //console.log(n_labels_graph);
+    if (myLineChart.options.scales.xAxes[0].time.unit == "minute" || myLineChart.options.scales.xAxes[0].time.unit == false)
+      myLineChart.options.scales.xAxes[0].time.unit = "second"
+  }
+
+
+
+  myLineChart.update()
+
+}
+
+function initGraph (settings) {
+
+  //console.log("initGraph");
+  //This is where we define the id of the chart container
+  var ctx = document.getElementById("myLineChart").getContext('2d');
+  //console.log(ctx.canvas.width);
+  ctx.canvas.width = ctx.canvas.width * 4
+  ctx.canvas.height = ctx.canvas.height * 4
+  //console.log(ctx.canvas.width);
+  myLineChartData = [];
+  myLineChartData2 = [];
+  myLineChartLabels = [];
+  myLineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+
+        datasets: [{
+            //label: settings.topic,
+            backgroundColor:settings.backgroundColor,
+            borderColor: settings.borderColor,
+            borderWidth:1,
+            steppedLine: true,
+            data: myLineChartData,
+        }]
+    },
+    options: {
+      animation: {
+        duration: 0
+      },
+      elements: { point: { radius: 0 } },
+      legend: {
+          display: false,
+        },
+      scales: {
+        xAxes: [{
+          // afterTickToLabelConversion: function(data){
+          //
+          //           var xLabels = data.ticks;
+          //
+          //           xLabels[0]= null
+          //
+          //           xLabels.forEach(function (labels, i) {
+          //               if (i % 2 == 1){
+          //                   xLabels[i] = 'x' + xLabels[i];
+          //               }
+          //           });
+          //
+          //           data.ticks = xLabels
+          //
+          //       } ,
+        ticks: {
+          autoSkip:false,
+          callback: function(value, index, values) {
+            //console.log(value, index, values)
+            //console.log(value[value.length-1]);
+
+            //Remove first static
+            if (index == 0 ) {
+              if (myLineChart.options === undefined)
+                return ""
+
+              var d = new Date(myLineChart.options.scales.xAxes[0].time.min)
+              return "\n"+moment(d).format('YYYY-MM-DD');
+            }
+
+            var n = values.length
+
+            window.n_labels_graph = n
+
+            if (n < 6)
+              return value
+
+
+
+            enddigit = parseInt(value.substr(value.length - 2))
+
+            //console.log(enddigit);
+
+            if (n < 10) {
+              if  ((enddigit % 2) == 0)
+                return value
+              else
+                return  "             "
+            }
+
+            else if (n < 40) {
+              if ((enddigit % 5) == 0)
+                return value
+              else
+                return  "             "
+            }
+
+            else if (n < 60) {
+              if ((enddigit % 10) == 0)
+                return value
+              else
+                return  "             "
+            }
+
+            else if (n < 80){
+              if ((enddigit % 20) == 0)
+                return value
+              else
+                return  "             "
+            }
+
+            else if (enddigit % 30 == 0)
+                return value
+
+
+            return  "             "
+            },
+          maxRotation: 0,
+          source: "data",
+          major: {
+              fontStyle: "bold",
+              fontColor: "#FF0000"
+          }
+        },
+        type: "time",
+        display: true,
+        time: {
+
+                    maxRotation: 0,
+                    minRotation: 0,
+                    //min: (new Date().getTime())-60000,
+                    //max: (new Date().getTime())+50000,
+                    unitStepSize: 1,
+                    //maxTicksLimit:10,
+                    minUnit: "second",
+                    unit: 'second',
+                    displayFormats: {
+                        hour: 'HH:mm',
+                        minute: 'HH:mm',
+                        second: 'HH:mm:ss'
+                    }
+                },
+        bounds: 'ticks',
+        scaleLabel: {
+          display: false,
+
+          labelString: 'Date'
+        },
+
+      }],
+            yAxes: [{
+                bounds: 'ticks',
+                ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, values) {
+
+                        var n = values.length - 1
+                        if (index != 0 && index != n) {
+
+                          return ""
+                        }
+
+
+                        return  value + " " + settings.unit;
+                    },
+                    min:0,
+                    suggestedMax: settings.max
+                }
+            }]
+        }
+
+    }
+    });
+
+    //myLineChart.options.scales.xAxes[0].ticks.maxRotation = 0
+    now = new Date().getTime()
+    var from = now + relpos - graphwidth
+    var to = now + relpos
+
+
+    myLineChart.options.scales.xAxes[0].suggestedmax = to
+    myLineChart.options.scales.xAxes[0].suggestedMin = from
+}
+
+
+
+
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/signalA',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  //timerange: [1503391208, 1503392208],
+  offset: 1,
+  zoom: 30,
+  clamp: true,
+  decimals: 0,
+  backgroundColor: "rgba(50,50,250,0.4)",
+  borderColor: "rgba(50,50,250,0.7)"
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  graphwidth = settings.zoom * 1000
+  relpos = settings.offset * 1000
+
+  if (settings.color !== undefined){
+    settings.borderColor = settings.color
+    settings.backgroundColor = settings.color
+  }
+
+  window._settings = settings
+  window._controller = controller
+
+  initGraph(settings);
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
+  //controller.bindTopicToCallback(addDataPoint, settings);
+
+  //controller.datasource.subscribe(settings.topic, function(topic, payload) { addDataPoint(settings, topic, payload) } );
+
+
+  data = controller.getDataSeriesBuffer()
+  data.relativetime = true
+  data.starttime = -600
+  data.stoptime = 120
+
+  data.events.newdata = function(buffer,values){
+
+    //addDataPoint(settings,payload.time,data)
+
+    var now = new Date().getTime();
+
+    myLineChartData.pop()
+    myLineChartData.push({x:values[0]*1000,y:values[buffer.keyId(settings.subproperty)]});
+    myLineChartData.push({x:now,y:values[1]});
+
+    //myLineChartData2.push({x:values[0]*1000,y:values[1]});
+
+  }
+
+  data.subscribe(controller.datasource,settings.topic)
+
+
+
+  window._data = data
+
+  setInterval(adjustivew,20)
+
+  $("canvas").on("mousewheel", function(e) {
+    if (e.ctrlKey) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        // perform desired zoom action here
+        //console.log(e.originalEvent.deltaY);
+        if (e.originalEvent.deltaY > 0)
+          graphwidth = graphwidth * 1.01
+        if (e.originalEvent.deltaY < 0 && graphwidth > 3000)
+          graphwidth = graphwidth * 0.99
+
+        updategraphdata()
+
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    // perform desired zoom action here
+    //console.log(e.originalEvent.deltaY);
+    if (e.originalEvent.deltaY > 0)
+      graphwidth = graphwidth * 1.01
+    if (e.originalEvent.deltaY < 0 && graphwidth > 3000)
+      graphwidth = graphwidth * 0.99
+
+    updategraphdata()
+});
+
+
+})
+</script>
+
+</html>

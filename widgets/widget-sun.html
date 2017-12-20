@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+</head>
+<body onresize="resize()">
+  <div id="outer">
+    <svg version="1.1" id="op-en_solarspinner" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%"
+    viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve" >
+    <g id="sun" style="transform-origin: center;">
+      <circle id="disc" fill="#FBB03B" stroke="#000000" stroke-width="3" stroke-miterlimit="10" cx="50.6" cy="49" r="22"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="8" y1="49.8" x2="25" y2="49.8"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="76" y1="48.8" x2="92" y2="48.8"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="50.5" y1="7.3" x2="50.5" y2="23.3"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="50.5" y1="74.3" x2="50.5" y2="91.3"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="20.3" y1="19.1" x2="32.1" y2="30.9"/>
+      <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="68.4" y1="66.6" x2="80.2" y2="78.4"/>
+      <g>
+        <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="80.5" y1="19.4" x2="68.7" y2="31.2"/>
+        <line fill="none" stroke="#000000" stroke-width="3" stroke-miterlimit="10" x1="33" y1="67.5" x2="21.2" y2="79.3"/>
+      </g>
+    </g>
+  </svg>
+  <div id="value" class="text" onresize="text_resize()">   -    W</div>
+</div>
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+}
+resize();
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/topic1',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [0, 0.12],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  controller.bindTopicToHtml(document.getElementById("value"), settings)
+  controller.bindTopicToRotation(document.getElementById("sun"), settings)
+})
+</script>
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -22%;
+    width: 100%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+</style>
+</body>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+
+
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+  <!-- <link rel="stylesheet" href="DataTree/dist/themes/default/style.min.css" /> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+
+</head>
+<body onresize="resize()">
+  <div id="outer">
+      <div id="topictree" style="width:120%; height:100%; border: 2px grey solid; border-radius:4px; padding-top:10px; overflow:scroll;"></div>
+
+      <div id="info" title="Viewing: %SOURCE%" style="display:none;">
+  <object id="graph" data="widget-realtimegraph.html?source=%SOURCE%&unit=&max=&" style="width:100%; height:30vh; " ></object></p>
+</div>
+
+
+
+  </div>
+</body>
+
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "20%";
+  document.getElementById("outer").style.height = "95vh";
+  document.getElementById("outer").style["padding-left"] = "0%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+
+}
+
+function CreateTree(topics_list,settings){
+
+  var tree = [];
+
+  var arrayLength = topics_list.length;
+  for (var i = 0; i < arrayLength; i++) {
+    tree = GenereateSubtree(topics_list[i][0],tree,settings);
+  }
+
+  return tree;
+}
+
+function AddTopicToTree(topic,tree,settings){
+  var newnodes = GeneratePath(topic,tree,settings);
+  var arrayLength = newnodes.length;
+
+  console.log(newnodes);
+
+  for (var i = 0; i < arrayLength; i++) {
+    $('#topictree').jstree().create_node(newnodes[i].parent ,  newnodes[i], "last")
+  }
+
+  return tree = tree.concat(newnodes);
+}
+
+function GenereateSubtree(topic,tree,settings){
+  var subtree = GeneratePath(topic,tree,settings);
+  tree = tree.concat(subtree);
+
+  return tree;
+}
+
+function GeneratePath(topic,tree,settings){
+
+  var subtree = [];
+
+  //console.log("Add subtree");
+
+  if ( !IsInTree(topic+":::loading",tree)) {
+    subtree.push({"id": topic + ":::loading","parent" :topic,"text" :"wating for data...","icon":"file"})
+  }
+
+  toptopic = settings.topic.split("/#")[0];
+
+  if (toptopic == "#")
+    toptopic = "";
+
+  if (topic.indexOf(toptopic) != 0)
+    return tree;
+
+  while(true) {
+    if (topic == "" || IsInTree(topic,tree) || IsInTree(topic,subtree) ){
+
+
+      break;
+    }
+
+    //console.log(topic);
+    //console.log(subtree);
+
+    var parent = FindParent(topic);
+    var name = topic.substring(parent.length).replace("/","");
+
+    if (topic == settings.servername) {
+      parent = "#";
+      subtree.push({"state" : { "opened" : true },"id":topic,"parent" :parent,"text" :name,"icon":"https://cdn0.iconfinder.com/data/icons/fatcow/32x32/terminal.png"})
+      break;
+    }
+    else if (topic == toptopic) {
+      parent = "#";
+      subtree.push({"state" : { "opened" : true },"id":topic,"parent" :parent,"text" :name})
+      break;
+    }
+    else if (parent == "") {
+      parent = settings.servername;
+    }
+
+
+
+    subtree.push({"id":topic,"parent" :parent,"text" :name})
+    topic = parent;
+
+  }
+
+  subtree.reverse();
+  //console.log(subtree);
+
+
+  //console.log("tree");
+  //console.log(tree);
+
+  return subtree;
+}
+
+function FindParent(name) {
+  var parts = name.split("/");
+  var lenghtLastpart = parts[parts.length-1].length;
+
+  parent = name.substring(0,name.length-lenghtLastpart-1);
+
+  return parent;
+}
+
+function IsInTree(str,tree){
+  var arrayLength = tree.length;
+
+  for (var i = 0; i < arrayLength; i++) {
+      if (str == tree[i].id)
+        return true;
+  }
+
+  return false;
+}
+
+function UpdateProperties (payload,node,settings){
+  //console.log(node.id + "\t" + payload);
+
+  try
+  {
+     var jsonObj = JSON.parse(payload);
+    //  console.log("json");
+    //  console.log(typeof(jsonObj));
+    //  console.log(jsonObj);
+
+     if (typeof(jsonObj) !== 'object')
+      throw {name : "NotObjectError", message : "too lazy to implement"};
+  }
+  catch(e)
+  {
+    //console.log("non json");
+    var id = node.id + ":::payload";
+    if ($('#topictree').jstree().rename_node( id, payload) == false) {
+      var newNode = { "id" : id, "text" : payload , "icon":"empty"};
+      $('#topictree').jstree().create_node(node.id ,  newNode, "last")
+      $('#topictree').jstree().delete_node(node.id + ":::loading");
+    }
+
+    return
+  }
+
+  for (var property in jsonObj) {
+    if (jsonObj.hasOwnProperty(property)) {
+      var id = node.id + "." + property;
+      var text = property + ": " + jsonObj[property];
+
+      //Try updating existing node
+      if ($('#topictree').jstree().rename_node( id, text) == false) {
+        //Else create new node
+        var newNode = { "id" : id, "text" : text , 'icon': 'jstree-file'};
+        $('#topictree').jstree().create_node(node.id ,  newNode, "last")
+        $('#topictree').jstree().delete_node(node.id + ":::loading");
+      }
+    }
+}
+
+
+}
+
+//Init
+resize();
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: '#',
+  subproperty: "power",
+  max: 10000,
+  unit: " W",
+  outputRange: [0, 0.12],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+
+  //controller.datasource.subscribe
+
+  var parts = settings.server.split("//");
+  settings.servername = parts[parts.length-1];
+
+  controller.datasource.io.on('topics_list', function (msg) {
+    //console.log("topics_list:")
+    //console.log(msg.payload);
+
+    var tree = CreateTree(msg.payload,settings);
+    //console.log(tree);
+
+
+
+    var data = [
+       { "id" : "ajson1", "parent" : "#", "text" : "Simple root node" },
+       { "id" : "ajson2", "parent" : "#", "text" : "Root node 2" },
+       { "id" : "ajson3", "parent" : "ajson2", "text" : "Child 1" },
+       { "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
+    ];
+   $("#topictree").jstree({
+     "core" : {
+       // so that create works
+       "check_callback" : true,
+
+        "data": tree
+     },
+    "plugins" : [ "contextmenu",  "dnd"],
+
+        "contextmenu":{
+                        "items": {
+                            "topic": {
+                                "label": "Copy topic",
+                                "action": function (obj) {
+                                    var topic = $('#topictree').jstree('get_selected')[0] ;
+
+                                    topic = topic.split(":::")[0]
+
+                                    window.prompt("Copy to clipboard: Ctrl+C, Enter", topic);
+},
+                            },
+                            "view": {
+                                "label": "Open in new tab",
+                                "action": function (obj) {
+                                  var topic = $('#topictree').jstree('get_selected')[0] ;
+                                    console.log(topic );
+
+},
+                            }
+                        }
+        }
+  }).on('create_node.jstree', function(e, data) {
+    console.log('saved');
+});
+
+$('#topictree').on("select_node.jstree",
+        function (e, data) {
+          //alert("node_id: " + data.node.id);
+
+          if (data.node.id.indexOf(".")>0) {
+
+
+            console.log(data.node.id);
+
+
+            var div = document.getElementById('info')
+            var clone = div.cloneNode(true) // true means clone all childNodes and all event handlers
+            clone.id = "view_" + data.node.id
+            clone.title = "Viewing: " + data.node.id
+            var graph = clone.querySelector("#graph")
+            graph.data = graph.data.replace("%SOURCE%",data.node.id)
+            document.body.appendChild(clone)
+
+            console.log(graph);
+
+
+            $( function() {
+               var dialog = $( clone ).dialog({width:'50vw'});
+
+            } );
+
+          }
+});
+
+
+$("#topictree").bind("hover_node.jstree",
+        function(e, data){
+            var nodeId = data.node.id
+            //var nodeId = jQuery.data(data.rslt.obj[0], "jstree").id;
+            console.log("Hovering: " + nodeId);
+        }
+    );
+
+controller.datasource.subscribe(".meta/newtopicsfeed",function(topic,payload){
+  tree = AddTopicToTree(payload,tree,settings);
+})
+
+
+
+    $("#topictree").on("open_node.jstree", function (e, data) {
+      //console.log(data.node.children);
+
+
+      //Has propterties
+      for (i=0;i < data.node.children.length;i++) {
+        if (data.node.children[i].indexOf(":") != -1) {
+          break;
+        }
+        console.log("No propterties");
+        return;
+      }
+
+
+      console.log("Open node_id: " + data.node.id);
+
+      controller.datasource.subscribe(data.node.id,function(topic,payload){
+        UpdateProperties(payload,data.node,settings);
+      });
+
+
+
+    });
+
+
+    $("#topictree").on("close_node.jstree", function (e, data) { console.log("Close node_id: " + data.node.id); });
+
+  });
+
+
+  controller.datasource.io.emit("list_topics",{"topic":settings.topic});
+
+  window.tmpaaa = controller;
+
+})
+
+$('#info').draggable();
+
+
+
+
+</script>
+
+<style>
+ .jstree-dot {
+  background: url("icons.png") 0px 0px no-repeat;
+  }
+
+
+  .jstree-default .jstree-new {
+    background: url("icons.png") -3px -3px no-repeat;
+  }
+
+  .jstree-default-small .jstree-new {
+    background: url("dist/themes/default/32px.png") -0px -0px no-repeat;
+  }
+
+  .jstree-default-large .jstree-new {
+    background: url("dist/themes/default/32px.png") -96px -64px no-repeat;
+  }
+
+  .jstree-default-responsive .jstree-new {
+    background: url("dist/themes/default/40px.png") 0 -160px no-repeat;
+    background-size: 120px 240px;
+  }
+
+
+</style>
+
+</html>

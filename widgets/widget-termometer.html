@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+</head>
+<body onresize="resize()">
+  <div id="outer" height="100%">
+    <?xml version="1.0" encoding="utf-8"?>
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    	 viewBox="0 0 48.5 118" enable-background="new 0 0 48.5 118" xml:space="preserve">
+    <g id="Outline">
+    	<g>
+    		<g>
+    			<path fill="none" stroke="#010101" stroke-width="5.5725" stroke-miterlimit="10" d="M32.1,80.2c0-0.2,0-0.3,0-0.5V16.6
+    				c0-4.3-3.6-7.9-7.9-7.9s-7.9,3.6-7.9,7.9v63.1c0,0.2,0,0.3,0,0.5c-4.4,2.7-7.3,7.5-7.3,12.9c0,8.4,6.8,15.2,15.2,15.2
+    				c8.4,0,15.2-6.8,15.2-15.2C39.4,87.7,36.4,82.9,32.1,80.2z"/>
+    			<circle fill="#ED2224" cx="24.2" cy="93.2" r="9.4"/>
+    		</g>
+    	</g>
+    </g>
+    <g id="Scale">
+    	<line fill="none" stroke="#010101" stroke-width="2" stroke-miterlimit="10" x1="16.3" y1="47.9" x2="21.3" y2="47.9"/>
+    	<line fill="none" stroke="#010101" stroke-width="2" stroke-miterlimit="10" x1="16" y1="33.2" x2="20.9" y2="33.2"/>
+    	<line fill="none" stroke="#010101" stroke-width="2" stroke-miterlimit="10" x1="16" y1="62.5" x2="20.9" y2="62.5"/>
+    	<line fill="none" stroke="#010101" stroke-width="2" stroke-miterlimit="10" x1="16" y1="77.2" x2="20.9" y2="77.2"/>
+    	<line fill="none" stroke="#010101" stroke-width="2" stroke-miterlimit="10" x1="16" y1="18.5" x2="20.9" y2="18.5"/>
+    </g>
+    <g id="Bar" style="transform-origin: bottom; transform: scaleY(0); ">
+    	<g>
+
+    		<g>
+    			<path fill="#ED2224" d="M26.7,89.1c0-24.2,0-48.4,0-72.5c0-3.2-5-3.2-5,0c0,24.2,0,48.4,0,72.5C21.7,92.3,26.7,92.3,26.7,89.1
+    				L26.7,89.1z"/>
+    		</g>
+    	</g>
+    </g>
+    </svg>
+  <div id="value" class="text" onresize="text_resize()">   -    W</div>
+</div>
+
+
+
+
+
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "30vh";
+  document.getElementById("outer").style["padding-left"] = "calc(50vw - 15vh)";
+
+  //document.getElementById("outer").style["max-height"] = "100%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+  document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 4 + "pt";
+  document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+}
+resize();
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/topic1',
+  subproperty: "temp",
+  max: 22,
+  min: 18,
+  unit: " °C",
+  outputRange: [0, 0.12],
+  clamp: true,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  //Bar is bigger then scale max and min and need to be calibrated.
+  settings.max = settings.max * 1.01
+  settings.min = settings.min * 0.94
+
+  controller.bindTopicToHtml(document.getElementById("value"), settings)
+  controller.bindTopicToHeight(document.getElementById("Bar"),settings)
+})
+</script>
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: -10%;
+    top: -25%;
+    width: 120%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+  }
+  #Bar{
+    transform-origin: bottom;
+    transition: all 2s ease-in-out;
+
+  }
+
+
+</style>
+</body>

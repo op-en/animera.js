@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+  <script src="https://op-en.se/assets/libs/popcorn-custom.js"></script>
+
+</head>
+
+<body onresize="resize()">
+  <div id="outer" >
+    <div id="video" style="width:100%;height:100%;"></div>
+
+  </div>
+
+<script>
+
+
+
+//If running stand alone.
+if (window == window.parent) {
+  //document.getElementById("outer").style.width = "100%";
+  //document.getElementById("outer").style["padding-left"] = "0%";
+  //document.getElementById("outer").style.height = "100vh";
+  //document.getElementById("outer").style.overflow = "hidden";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+function resize() {
+  //document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+  var textsize = document.getElementById("value").offsetWidth / 12
+  document.getElementById("value").style.fontSize =  textsize + "pt"
+  //document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+  if (typeof window.pop !== 'undefined') {
+    var pos =  window.pop.position()
+    var black = 0
+    var ratio = 16/10
+    var height = pos.height
+    var x = 0.28
+
+
+    if (   (pos.height * ratio)  > pos.width) {
+      //console.log("black boarders top bottom")
+      height = pos.width / ratio
+      black = pos.height - height;
+    }
+
+
+
+    var value_top = ( (height * x) - (textsize/2) + (black/2)) - pos.height
+
+    document.getElementById("value").style.top = value_top + "px"
+
+    //console.log(value_top + "px")
+
+  }
+
+}
+resize();
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  topic: 'test/energy',
+  subproperty: "energy",
+  max: 10000,
+  unit: "",
+  movie: "https://www.youtube.com/embed/Y5jU8TgwAVY",
+  clamp: true,
+  starttime: 0,
+  speed: 1,
+  decimals: 0
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+
+  //var cues = [7,10.1,11.5,14.3,17,19.5,22.5,25,27,31];
+  var pop = Popcorn.smart( "#video", settings.movie);
+  document.getElementById("video").childNodes[0].style.width="100%"
+  //wrapper.src = settings.movie
+  //var pop = Popcorn( wrapper );
+  window.pop = pop
+
+
+
+  // for (let cue of settings.cues) {
+  //   pop.cue(cue,function() {
+  //     pop.pause()
+  //     document.getElementById("value").innerHTML = window.value + settings.unit
+  //   });
+  //}
+
+
+  //pop.play();
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //console.log("check1!")
+
+  if (settings.source.indexOf("time:") == 0){
+
+    var name = settings.source.split("time:")[1]
+    var timeobj = objects.animera.getTime(name)
+    var changedspeed = false
+
+    this.scalechange = true
+    this.update = function(time,obj){
+
+      var pos = time - settings.starttime
+
+      //console.log(pos,pop.duration())
+
+      //Time is after the movie
+      if (pos > pop.duration()) {
+        pos = pop.duration()
+        pop.pause(pos-0.3)
+        this.prev = pos + settings.starttime
+        this.next = Infinity
+        return
+      }
+
+      //Time is before the movie
+      if (pos < 0) {
+        pop.pause(0)
+        this.prev = -Infinity
+        this.next = settings.starttime
+        return
+      }
+
+      if (pop.playbackRate() != obj.timescale) {
+        pop.playbackRate(obj.timescale)
+        changedspeed = true
+      }
+
+      var delta = pop.currentTime() - pos
+
+      if (obj.timescale == 0)
+        pop.pause(pos)
+      else {
+
+        //console.log(delta)
+        if (changedspeed || Math.abs(delta) > 0.2)
+          pop.play(pos)
+
+      }
+
+      this.prev = time - obj.timescale
+      this.next = time + obj.timescale
+
+      //console.log(obj.timescale,time,this.next,delta);
+
+    }
+
+    timeobj.addtimeobject(this)
+
+    console.log("Using time: " + name);
+
+    window.dan = objects.animera
+
+    return
+  }
+
+
+
+
+  controller.bindTopicToCallback( function (data) {
+
+
+       data = AnimeraWidget.parseifJSON(data)
+
+       //console.log(typeof(data))
+
+       if (typeof(data) === 'object')
+       {
+         if (typeof(data.time) !== 'undefined')
+            pop.play(data.time - settings.starttime)
+         if (typeof(data.timescale) !== 'undefined')
+            pop.playbackRate(data.timescale)
+         else
+            pop.playbackRate(1)
+       }
+       else
+          pop.play(data - settings.starttime)
+
+  },settings)
+  //
+  //       if (data > settings.cues.length -2) {
+  //         data = settings.cues.length -2
+  //       }
+  //
+  //
+  //       var cue = settings.cues[data]
+  //       window.value = data
+  //
+  //       if (Math.abs(pop.currentTime() - cue)< 0.2) {
+  //         pop.play()
+  //       }
+  //       else {
+  //         pop.currentTime( cue )
+  //
+  //         pop.on("seeked",function(e) {pop.play()})
+  //       }
+  //
+  //       setTimeout(function() {
+  //           document.getElementById("value").innerHTML = window.value + settings.unit
+  //       }, 1500);
+  //
+  //
+  //
+  //   }, settings)
+
+
+})
+
+function resize(){
+
+}
+
+</script>
+<style>
+
+html {
+  margin:0px;
+}
+
+body{
+  margin:0px;
+  width:100vw;
+  overflow: hidden;
+
+}
+
+
+#outer{
+  width: calc(100% -0px );
+
+  position:relative;
+  overflow:hidden;
+  border:none;
+}
+
+
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -70%;
+    width: 100%;
+    height: 20%;
+    text-align: center;
+    z-index:10;
+    color:white;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+
+
+</style>
+</body>

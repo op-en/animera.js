@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- inject:animerawidget:js -->
+  <!-- endinject -->
+  <link href='https://fonts.googleapis.com/css?family=Palanquin+Dark' rel='stylesheet' type='text/css'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+  <script src="../libs/Chart.PieceLabel.min.js"></script>
+</head>
+<body onresize="resize()">
+<div id="outer">
+
+</div>
+  <div id="pieChart">
+    <canvas id="myPieChart" width="800" height="400"></canvas>
+  </div>
+
+
+
+
+
+</div>
+
+<script>
+//If running stand alone.
+if (window == window.parent) {
+  document.getElementById("outer").style.width = "40%";
+  document.getElementById("outer").style["padding-left"] = "30%";
+  //document.getElementById("outer").style.height = "100vh";
+}
+
+
+
+AnimeraWidget.init({
+  server: 'https://op-en.se',
+  unit: " W",
+  labels: ["1","2","3"],
+  backgroundColors: [
+      'rgba(255, 99, 255, 0.9)',
+      'rgba(54, 54, 255, 0.9)',
+      'rgba(255, 206, 255, 0.9)',
+      'rgba(75, 192, 255, 0.9)',
+      'rgba(153, 102, 255, 0.9)',
+      'rgba(235, 159, 255, 0.9)'
+  ],
+  borderColors:[
+      'rgba(0,0,0,1)',
+      'rgba(0, 0, 0, 1)',
+      'rgba(0, 0, 0, 1)',
+      'rgba(0, 0, 0, 1)',
+      'rgba(0, 0, 0, 1)',
+      'rgba(0, 0, 0, 1)'
+  ],
+  borderWidth:1,
+  data:[1,3,5],
+  labelformat:'',
+  labelcolor:"black",
+  labelsize:100,
+  cutoutPercentage:-1
+
+
+}).then(function (objects) {
+  var settings = objects.settings;
+  var controller = objects.animera.getController(settings.server)
+  window.settings = settings
+
+  window.controller = controller
+
+  //controller.bindTopicToHtml(document.getElementById("value"), settings)
+  //controller.bindTopicToRotation(document.getElementById("cogwheel"), settings)
+  data = {
+        labels: settings.labels,
+        datasets: [{
+            label: '',
+            data: settings.data,
+            backgroundColor:settings.backgroundColors,
+            borderColor: settings.borderColors,
+            borderWidth: settings.borderWidth
+        }]
+    }
+
+  n = settings.data.length
+
+  for (var i = 0;i<n;i++){
+    if (typeof(settings.data[i]) !== 'string')
+      continue
+
+    objects.animera.subscribeTo(settings.data[i], generatecallback(i))
+  }
+
+  function generatecallback(index){
+    return function (value,msg){
+      //console.log(index)
+      update(index,value)
+    }
+  }
+
+  console.log("Init pie");
+  var ctx = document.getElementById("myPieChart").getContext('2d')
+  ctx.canvas.width = ctx.canvas.width * 4
+  ctx.canvas.height = ctx.canvas.height * 4
+  var myPieChart = new Chart(ctx,{
+    type: 'pie',
+    data: data,
+    options: {
+        legend: {
+            display: false
+         },
+         cutoutPercentage:settings.cutoutPercentage,
+         animation:{animateScale:true},
+
+          pieceLabel: {
+            render: settings.labelformat,
+            arc: true,
+            position: 'border',
+            fontSize: ctx.canvas.width/50,
+            fontColor:settings.labelcolor
+          }
+        }
+  });
+
+
+
+  function update(index,value){
+    data.datasets[0].data[index] = value
+    myPieChart.update()
+  }
+
+  window.myPieChart = myPieChart
+
+  //Bindings
+  //objects.animera.subscribeTo("apps://op-en.se/test/signalA.power", function(value,msg){
+    //console.log(value,msg);
+//    update(0,value)
+//  })
+
+  function resize() {
+    //document.getElementById("value").style.fontSize = document.getElementById("value").offsetWidth / 6 + "pt";
+    //document.getElementById("outer").style.height = document.getElementById("value").offsetWidth + "px";
+
+    var ctx = document.getElementById("myPieChart").getContext('2d')
+    myPieChart.options.pieceLabel.fontSize = ctx.canvas.width/50*(settings.labelsize/100)
+    myPieChart.update()
+
+    //console.log(document.getElementById("outer").style.width);
+
+  }
+
+  window.resize = resize
+
+  resize()
+
+
+})
+
+
+
+
+
+
+
+</script>
+<style>
+  .text {
+    background-color: none;
+    font-size: 18pt;
+    font-family: 'Palanquin Dark', sans-serif;
+    position: relative;
+    left: 0%;
+    top: -22%;
+    width: 100%;
+    height: 40%;
+    text-align: center;
+    z-index:10;
+  }
+
+  .test {
+    background-color: none;
+    border: 3px solid blue;
+    border-color: black;
+
+  }
+</style>
+</body>
