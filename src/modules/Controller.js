@@ -83,6 +83,9 @@ Controller.prototype.bindTopicToCallback = function (callback, settings) {
 // element is the id of an html element.
 // If mqtt data is Json the optional subproperty can be used to get a specific property of the data.
 Controller.prototype.bindTopicToHtml = function (element, settings) {
+
+  this.parse_settings(settings)
+
   var subproperty = settings.subproperty || null
   var unit = settings.unit || ''
   var topic = settings.topic || ''
@@ -127,28 +130,47 @@ Controller.prototype.bindTopicToHtml = function (element, settings) {
   })
 }
 
-Controller.prototype.bind_topic_to_style = function (element, topic, style, subproperty) {
-  if (typeof (subproperty) === 'undefined') subproperty = null
+Controller.prototype.bind_topic_to_style = function (element, style, settings) {
+
+  this.parse_settings(settings)
 
   if (typeof element === 'string' || element instanceof String) {
     element = document.getElementById(element)
   }
 
-  this.datasource.subscribe(topic, function (topic, payload) {
+  if (typeof (settings.subproperty) === 'undefined') subproperty = null
+  if (typeof (settings.max) === 'undefined') max = 10000
+  if (typeof (settings.outputRange) === 'undefined') outputRange = [0,1]
+
+
+  var m=(settings.outputRange[1] - settings.outputRange[0]) /  settings.max
+  var c= settings.outputRange[1]-m*settings.max
+
+  console.log(":::::",m,c)
+
+  this.datasource.subscribe(settings.topic, function (topic, payload) {
     var data
-    if (subproperty != null) {
+    if (settings.subproperty != null) {
       payload = JSON.parse(payload)
-      data = payload[subproperty]
+      data = payload[settings.subproperty]
     } else {
       data = payload
     }
 
+
+
+    var value = m*data + c
+
     // Only if string.
-    element['style'][style] = '' + data
+    element['style'][style] = '' + value
   })
 }
 
 Controller.prototype.animateStyle = function (element,style,formula, settings) {
+
+  this.parse_settings(settings)
+  console.log(settings)
+
   var subproperty = settings.subproperty || null
   var topic = settings.topic || ''
   if (formula == null)
@@ -200,6 +222,9 @@ Controller.prototype.animateStyle = function (element,style,formula, settings) {
 }
 
 Controller.prototype.bindTopicToHeight = function (element, settings) {
+
+  parse_settings(settings)
+
   var subproperty = settings.subproperty || null
   var topic = settings.topic || ''
   var max = settings.max || 1
@@ -237,7 +262,55 @@ Controller.prototype.bindTopicToHeight = function (element, settings) {
   })
 }
 
+Controller.prototype.bindTopicToWidth = function (element, settings) {
+
+  this.parse_settings(settings)
+
+  var subproperty = settings.subproperty || null
+  var topic = settings.topic || ''
+  var max = settings.max || 1
+  var min = settings.min || 0
+
+  if (typeof element === 'string' || element instanceof String) {
+    element = document.getElementById(element)
+  }
+
+  this.datasource.subscribe(settings.topic, function (topic, payload) {
+    var data
+    if (subproperty != null) {
+      payload = JSON.parse(payload)
+      data = payload[subproperty]
+    } else {
+      data = payload
+    }
+
+    if (data > settings.max) {
+      data = settings.max
+    }
+
+    if (data < settings.min) {
+      data = settings.min
+    }
+
+
+
+    var scale = (data - settings.min) / (settings.max - settings.min)
+
+    //console.log([scale,data,settings.min,settings.max])
+
+    // Only if string.
+    element['style']['transform'] = 'scaleX(' + scale + ')'
+  })
+}
+
 Controller.prototype.bindTopicToRotation = function (element, settings) {
+
+  this.parse_settings(settings)
+
+  if (typeof element === 'string' || element instanceof String) {
+    element = document.getElementById(element)
+  }
+
   var relative = settings.relative
   if (relative === undefined) {
     relative = true
@@ -248,6 +321,9 @@ Controller.prototype.bindTopicToRotation = function (element, settings) {
   var outputRange = settings.outputRange || null
   var clamp = settings.clamp || null
   var topic = settings.topic || ''
+  var transform_origin = settings["transform-origin"] || "50% 50%"
+
+  element.style["transform-origin"]=transform_origin
 
   if (this.debug) {
     console.log(settings)
@@ -316,7 +392,36 @@ Controller.prototype.getDataSeriesBuffer = function (element, settings) {
   return new Timeseries.DataSeriesBuffer(this.time)
 }
 
+Controller.prototype.parse_settings = function(settings) {
+  if (typeof(settings.source) !== 'undefined') {
+    //console.log("Overriding topic with source parameters");
 
+    var parsedsource = Animera.parse_data_url(settings.source)
+    //console.log(source);
+    if (typeof(parsedsource.server) !== 'undefined'){
+      if (parsedsource.protocol == "apps")
+        settings.server = "https://" + parsedsource.server
+      else if (parsedsource.protocol == "app")
+        settings.server = "http://" + parsedsource.server
+      else
+        settings.server = parsedsource.server
+    }
+    settings.topic = parsedsource.topic
+    settings.protocol = parsedsource.protocol
+    settings.subproperty = parsedsource.subproperty
+    console.log(settings)
+  }
+
+  if (typeof(settings.protocol) === 'undefined') {
+    if (settings.server.indexOf("https://") > 0)
+      settings.protocol = "apps"
+    else {
+      settings.protocol = "app"
+    }
+  }
+
+  return settings
+}
 
 Controller.prototype.autobind = function (bindDocument, objectData) {
   const controller = this
