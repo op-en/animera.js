@@ -435,7 +435,7 @@ AnimeraWidget.init({
 			document.getElementById(name + "Text").style["opacity"] = 0
 	}
 
-	function SetupBasicAmination(name,source) {
+	function SetupBasicAmination(name,source,isproduction) {
 			document.getElementById(name + 'Text').style["text-anchor"] = "middle"
 
 			console.log(name,source)
@@ -452,26 +452,38 @@ AnimeraWidget.init({
 				decimals: 0
 			})
 
-			controller.animateStyle(name + "Flow","stroke-dashoffset",null,{
+			var params = {
 				source: source,
 				max: 10000,
-				outputRange: [0, -100],
-				clamp: true,
+				outputRange: [0, 100],
+				clamp: false,
 				decimals: 0
 
-			})
+			}
+
+			if (isproduction)
+				params = {
+					source: source,
+					max: 10000,
+					outputRange: [0, -100],
+					clamp: false,
+					decimals: 0
+
+				}
+
+			controller.animateStyle(name + "Flow","stroke-dashoffset",null,params)
 
 
 		}
 
 	mapping = {
 				sources:{
-		      Sun:{power:"apps://op-en.se/test/signalA.power"},
-		      Wind:{power:"apps://op-en.se/test/signalB.power"},
-		      Load:{power:"apps://op-en.se/test/signalC.power"},
-		      Charger:{power:"apps://op-en.se/test/signalB.power"},
-		      Battery:{power:"apps://op-en.se/test/signalB.power",state:'apps://op-en.se/test/signalA.power'},
-		      Grid:{power:"apps://op-en.se/test/signalB.power"}
+		      Sun:{power:"apps://op-en.se/test/signalA.power",isproduction:true},
+		      Wind:{power:"apps://op-en.se/test/power2u/wind.power",isproduction:true},
+		      Load:{power:"apps://op-en.se/test/signalC.power",isproduction:false},
+		      Charger:{power:"apps://op-en.se/test/signalB.power",isproduction:false},
+		      Battery:{power:"apps://op-en.se/test/power2u/battery_state.power",state:'apps://op-en.se/test/power2u/battery_state.percentage'},
+		      Grid:{power:"apps://op-en.se/test/signalB.power",isproduction:false}
 				},
 	      MaxPower: 6000
 	}
@@ -481,14 +493,15 @@ AnimeraWidget.init({
    if (mapping.sources.hasOwnProperty(key)) {
 		 console.log(key)
 		 if (mapping.sources[key].hasOwnProperty("power"))
-      	SetupBasicAmination(key,mapping.sources[key].power)
+      	SetupBasicAmination(key,mapping.sources[key].power,mapping.sources[key].isproduction)
    }
 	}
 
 	//BatteryLevel
 	controller.bind_topic_to_style("BatteryLevel_3_","width",{
 		source: mapping.sources["Battery"].state,
-		max: 100
+		max: 100,
+		outputRange:[0,44]
 	})
 
 	//Windmill
