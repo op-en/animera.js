@@ -413,8 +413,101 @@ function resize() {
 }
 resize();
 
+function disable(name){
+    document.getElementById(name + "Bubble").style["opacity"] = 0.2
+    document.getElementById(name + "Flow").style["opacity"] = 0.2
+    document.getElementById(name + "Icon").style["opacity"] = 0.2
+    document.getElementById(name + "Text").style["opacity"] = 0
+}
+
+function enable(name){
+    document.getElementById(name + "Bubble").style["opacity"] = 1
+    document.getElementById(name + "Flow").style["opacity"] = 1
+    document.getElementById(name + "Icon").style["opacity"] = 1
+    document.getElementById(name + "Text").style["opacity"] = 1
+}
+
+function SetupBasicAmination(controller,name,source,isproduction) {
+    document.getElementById(name + 'Text').style["text-anchor"] = "middle"
+
+    //console.log(name,source)
+
+    if (source == "" || source == null)
+    {
+      disable(name)
+      return
+    }
+
+		enable(name)
+
+    controller.bindTopicToHtml(name + "Text",{
+      source: source,
+      unit: " W",
+      decimals: 0,
+      sign:"ignore"
+    })
+
+    var params = {
+      source: source,
+      max: 10000,
+      outputRange: [0, 100],
+      clamp: false,
+      decimals: 0
+
+    }
+
+    if (isproduction)
+      params = {
+        source: source,
+        max: 10000,
+        outputRange: [0, -100],
+        clamp: false,
+        decimals: 0
+
+      }
+
+    controller.animateStyle(name + "Flow","stroke-dashoffset",null,params)
+
+
+  }
+
+  function mapAnimation(controller,mapping) {
+
+	   //Setup power values
+  	for (var key in mapping.sources) {
+     if (mapping.sources.hasOwnProperty(key)) {
+  		 //console.log(key)
+  		 if (mapping.sources[key].hasOwnProperty("power"))
+        	SetupBasicAmination(controller,key,mapping.sources[key].power,mapping.sources[key].isproduction)
+     }
+  	}
+
+  	//BatteryLevel
+		if (mapping.sources["Battery"].state != "") {
+
+	  	controller.bind_topic_to_style("BatteryLevel_3_","width",{
+	  		source: mapping.sources["Battery"].state,
+	  		max: 100,
+	  		outputRange:[0,44]
+	  	})
+
+		}
+
+  	//Windmill
+  	if (mapping.sources["Wind"].hasOwnProperty("power") && mapping.sources["Wind"]["power"] != "")
+  		window.d_rot = controller.bindTopicToRotation("WindRotation", {
+  				"transform-origin": "456.4px 112.1px",
+  				source: mapping.sources["Wind"].power,
+  				outputRange: [0, -3],
+  				max: 100000,
+  				clamp: true
+  	})
+
+  }
+
+
 AnimeraWidget.init({
-  source: 'apps://op-en.se/test/signalA.power',
+  source: 'apps://op-en.se/test/power2u/default',
   max: 10000,
   unit: " W",
   outputRange: [0, 100],
@@ -426,100 +519,31 @@ AnimeraWidget.init({
   var settings = objects.settings;
   var controller = objects.animera.getController("https://op-en.se")
 
+  mapping = {
+        sources:{
+          Sun:{power:"",isproduction:true},
+          Wind:{power:"",isproduction:true},
+          Load:{power:"",isproduction:false},
+          Charger:{power:"",isproduction:false},
+          Battery:{power:"",state:''},
+          Grid:{power:"",isproduction:false}
+        },
+        MaxPower: 6000
+  }
 
 
-	function disable(name){
-			document.getElementById(name + "Bubble").style["opacity"] = 0.2
-			document.getElementById(name + "Flow").style["opacity"] = 0.2
-			document.getElementById(name + "Icon").style["opacity"] = 0.2
-			document.getElementById(name + "Text").style["opacity"] = 0
-	}
+  mapAnimation(controller,mapping);
 
-	function SetupBasicAmination(name,source,isproduction) {
-			document.getElementById(name + 'Text').style["text-anchor"] = "middle"
-
-			console.log(name,source)
-
-			if (source == "" || source == null)
-			{
-				disable(name)
-				return
-			}
-
-			controller.bindTopicToHtml(name + "Text",{
-				source: source,
-				unit: " W",
-				decimals: 0
-			})
-
-			var params = {
-				source: source,
-				max: 10000,
-				outputRange: [0, 100],
-				clamp: false,
-				decimals: 0
-
-			}
-
-			if (isproduction)
-				params = {
-					source: source,
-					max: 10000,
-					outputRange: [0, -100],
-					clamp: false,
-					decimals: 0
-
-				}
-
-			controller.animateStyle(name + "Flow","stroke-dashoffset",null,params)
-
-
-		}
-
-	mapping = {
-				sources:{
-		      Sun:{power:"apps://op-en.se/test/signalA.power",isproduction:true},
-		      Wind:{power:"apps://op-en.se/test/power2u/wind.power",isproduction:true},
-		      Load:{power:"apps://op-en.se/test/signalC.power",isproduction:false},
-		      Charger:{power:"apps://op-en.se/test/signalB.power",isproduction:false},
-		      Battery:{power:"apps://op-en.se/test/power2u/battery_state.power",state:'apps://op-en.se/test/power2u/battery_state.percentage'},
-		      Grid:{power:"apps://op-en.se/test/signalB.power",isproduction:false}
-				},
-	      MaxPower: 6000
-	}
-
-	//Setup power values
-	for (var key in mapping.sources) {
-   if (mapping.sources.hasOwnProperty(key)) {
-		 console.log(key)
-		 if (mapping.sources[key].hasOwnProperty("power"))
-      	SetupBasicAmination(key,mapping.sources[key].power,mapping.sources[key].isproduction)
-   }
-	}
-
-	//BatteryLevel
-	controller.bind_topic_to_style("BatteryLevel_3_","width",{
-		source: mapping.sources["Battery"].state,
-		max: 100,
-		outputRange:[0,44]
-	})
-
-	//Windmill
-	window.d_rot = controller.bindTopicToRotation("WindRotation", {
-			"transform-origin": "456.4px 112.1px",
-			source: mapping.sources["Wind"].power,
-			outputRange: [0, -3],
-			max: 100000,
-			clamp: true
-		})
+	console.log("topicTOcallback")
+	var mysetting = {source:settings.source}
+	console.log(mysetting)
+  controller.bindTopicToCallback(function(data,payload){
+		mapping = data
+		mapAnimation(controller,mapping);
+  },mysetting)
 
 
 
-
-
-  //For debugging
-
-  window._controller = controller
 
 
 })
