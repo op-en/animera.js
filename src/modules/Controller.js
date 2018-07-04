@@ -36,6 +36,8 @@ var Controller = module.exports = function (datasource) {
 // element is the id of an html element.
 // If mqtt data is Json the optional subproperty can be used to get a specific property of the data.
 Controller.prototype.bindTopicToCallback = function (callback, settings) {
+  this.parse_settings(settings)
+
   var subproperty = settings.subproperty || null
   var topic = settings.topic || ''
   var decimals = settings.decimals || null
@@ -43,23 +45,22 @@ Controller.prototype.bindTopicToCallback = function (callback, settings) {
 
   this.datasource.subscribe(topic, function (topic, payload) {
     var data
+
+    try {
+      payload = JSON.parse(payload)
+        } catch (e) {
+      console.error(e)
+      data = payload
+      return
+    }
+
     if (subproperty != null) {
-      try {
-        payload = JSON.parse(payload)
-      } catch (e) {
-        console.error(e)
-        return
-      }
-
       data = payload[subproperty]
-
-      if (this.debug) {
-        console.log(data)
-        console.log(payload)
-      }
     } else {
       data = payload
     }
+
+    //
 
     // Is the decimals argument set.
     if (typeof (decimals) !== 'undefined') {
@@ -72,7 +73,7 @@ Controller.prototype.bindTopicToCallback = function (callback, settings) {
       }
     }
     // Only if string.
-    callback(data,payload);
+    callback(data,payload)
   })
 }
 
@@ -90,6 +91,7 @@ Controller.prototype.bindTopicToHtml = function (element, settings) {
   var unit = settings.unit || ''
   var topic = settings.topic || ''
   var decimals = settings.decimals || null
+  var sign = settings.sign || null
 
   if (typeof element === 'string' || element instanceof String) {
     element = document.getElementById(element)
@@ -107,10 +109,8 @@ Controller.prototype.bindTopicToHtml = function (element, settings) {
 
       data = payload[subproperty]
 
-      if (this.debug) {
-        console.log(data)
-        console.log(payload)
-      }
+
+  
     } else {
       data = payload
     }
@@ -125,7 +125,22 @@ Controller.prototype.bindTopicToHtml = function (element, settings) {
         data = value.toFixed(decimals)
       }
     }
-    // Only if string.
+
+    //if (data < 0)
+    //  console.log("data", data, typeof (sign),typeof(data) ,data)
+    // Is the sign argument set.
+    if (typeof (sign) !== 'undefined') {
+      var value = parseFloat(data)
+
+      if (sign == "ignore") {
+        data = Math.abs(value)
+      }
+      else if (sign == "invert") {
+        data = value * -1
+      }
+    }
+
+    //Set
     element.innerHTML = '' + data + unit
   })
 }
@@ -393,11 +408,13 @@ Controller.prototype.getDataSeriesBuffer = function (element, settings) {
 }
 
 Controller.prototype.parse_settings = function(settings) {
+
+  console.log(typeof(settings.source))
   if (typeof(settings.source) !== 'undefined') {
     //console.log("Overriding topic with source parameters");
 
     var parsedsource = Animera.parse_data_url(settings.source)
-    //console.log(source);
+
     if (typeof(parsedsource.server) !== 'undefined'){
       if (parsedsource.protocol == "apps")
         settings.server = "https://" + parsedsource.server
