@@ -60,6 +60,7 @@ Animera.prototype.getController = function (url, sourcetype) {
 
   // Save controller for later widget instances
   this.controllers.push(controller)
+  controller.Animera = this 
   return controller
 }
 

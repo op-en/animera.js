@@ -110,7 +110,7 @@ Controller.prototype.bindTopicToHtml = function (element, settings) {
       data = payload[subproperty]
 
 
-  
+
     } else {
       data = payload
     }
@@ -413,7 +413,7 @@ Controller.prototype.parse_settings = function(settings) {
   if (typeof(settings.source) !== 'undefined') {
     //console.log("Overriding topic with source parameters");
 
-    var parsedsource = Animera.parse_data_url(settings.source)
+    var parsedsource = this.Animera.parse_data_url(settings.source)
 
     if (typeof(parsedsource.server) !== 'undefined'){
       if (parsedsource.protocol == "apps")
